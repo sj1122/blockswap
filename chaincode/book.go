@@ -80,9 +80,10 @@ func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor st
 }
 
 func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
-	orderJsonBytes, err := stub.GetState(investor)
+	/*orderJsonBytes, err := stub.GetState(investor)
 	if err != nil {
         return nil, errors.New("Unable to retrieve order for " + investor)
     }
-	return orderJsonBytes, nil
+	return orderJsonBytes, nil*/
+	return []byte("Dummy"), nil
 }
