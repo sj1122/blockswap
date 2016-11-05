@@ -45,7 +45,9 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 	fmt.Println("query is running " + function)
 
 	// Handle different functions
-	if function == "getOrder" { //read a variable
+	if function == "init" {
+		t.Init(stub, function, args)
+	} else if function == "getOrder" { //read a variable
 		investor := args[0]
 		return t.getOrder(stub, investor)
 	}
