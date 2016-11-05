@@ -32,7 +32,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	// Handle different functions
 	if function == "addOrder" {
 		investor := args[0]
-		ioi, _ := strconv.ParseFloat(args[1], 64)
+		ioi, err := strconv.ParseFloat(args[1], 64)
+		if err != nil {
+	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
+    	}
 		return t.addOrder(stub, investor, ioi)
 	}
 	fmt.Println("invoke did not find func: " + function)
@@ -64,13 +67,22 @@ type Order struct {
 
 func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor string, ioi float64) ([]byte, error)  {
 	order := Order{investor: investor, ioi: ioi}
-	orderJson, _ := json.Marshal(order)
+	orderJson, err := json.Marshal(order)
+	if err != nil {
+        return nil, errors.New("Unable to Marshal order")
+    }
 	orderJsonBytes := []byte(orderJson)
-	stub.PutState(investor, []byte(orderJson))
+	err = stub.PutState(investor, []byte(orderJson))
+	if err != nil {
+        return nil, errors.New("Unable to put order JSON")
+    }
 	return orderJsonBytes, nil
 }
 
 func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
-	orderJsonBytes, _ := stub.GetState(investor)
+	orderJsonBytes, err := stub.GetState(investor)
+	if err != nil {
+        return nil, errors.New("Unable to retrieve order for " + investor)
+    }
 	return orderJsonBytes, nil
 }
