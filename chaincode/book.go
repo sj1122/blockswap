@@ -82,7 +82,7 @@ func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor st
 	if err != nil {
         return nil, errors.New("Unable to put value")
     }
-    return nil, nil
+	return []byte("Test"), nil
 }
 
 func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
