@@ -7,27 +7,99 @@ var CHAINCODE_API_URL = PEER_NODE_URL_BASE + "/chaincode";
 
 var CHAINCODE_URL = "https://github.com/habond/blockswap/chaincode";
 
-var args = {
-	data: { 
-		"jsonrpc": "2.0", 
-		"method": "deploy", 
-		"params": { 
-			"type": 1, 
-			"chaincodeID": { 
-				"path": CHAINCODE_URL
-			}, 
-			"ctorMsg": { 
-				"args": ["init", "a", "1000", "b", "2000"] 
-			}
-		}, 
-		"id": 1
-	},
-	headers: { "Content-Type": "application/json" }
+module.exports = function(init_args) {
+
+	var deployment_id = null;
+
+	client.post(CHAINCODE_API_URL, CreateDeployPayload(CHAINCODE_URL, "init", init_args), function(data, response) {
+		console.log(data);
+    	deployment_id = data.result.message;
+	});
+
+	return {
+		query: function(fn, args) {
+			client.post(CHAINCODE_API_URL, CreateQueryPayload(deployment_id, fn, args), function (data, response) {
+				console.log(data);
+			});
+		},
+		invoke: function(fn, args) {
+			client.post(CHAINCODE_API_URL, CreateInvokePayload(deployment_id, fn, args), function (data, response) {
+				console.log(data);
+			});
+		},
+		getOrder: function(investor) {
+			client.post(CHAINCODE_API_URL, CreateQueryPayload(deployment_id, "getOrder", [investor]), function (data, response) {
+				console.log(data);
+			});
+		},
+		addOrder: function(investor, ioi) {
+			client.post(CHAINCODE_API_URL, CreateInvokePayload(deployment_id, "addOrder", [investor, ioi]), function (data, response) {
+				console.log(data);
+			});
+		}
+	};
+
 };
 
-client.post(CHAINCODE_API_URL, args, function (data, response) {
-    // parsed response body as js object
-    //console.log(data);
-    // raw response
-    console.log(response);
-});
+function CreateDeployPayload(url, fn, args) {
+	return {
+		data: { 
+			"jsonrpc": "2.0", 
+			"method": "deploy", 
+			"params": { 
+				"type": 1, 
+				"chaincodeID": { 
+					"path": url
+				}, 
+				"ctorMsg": {
+			      "function": fn,
+			      "args": args
+			    }
+			}, 
+			"id": 1
+		},
+		headers: { "Content-Type": "application/json" }
+	};
+}
+
+function CreateQueryPayload(id, fn, args) {
+	return { 
+	    data: {
+			"jsonrpc": "2.0",
+			"method": "query",
+			"params": {
+				"type": 1,
+				"chaincodeID": {
+					"name": id
+				},
+				"ctorMsg": {
+					"function": fn,
+					"args": args
+				}
+			},
+			"id": 2
+		},
+		headers: { "Content-Type": "application/json" }
+	};	
+}
+
+function CreateInvokePayload(id, fn, args) {
+	return {
+		data: {
+			"jsonrpc": "2.0",
+			"method": "invoke",
+			"params": {
+				"type": 1,
+				"chaincodeID": {
+					"name": id
+				},
+				"ctorMsg": {
+					"function": fn,
+					"args": args
+				},
+			},
+			"id": 3
+		},
+		headers: { "Content-Type": "application/json" }
+	};
+}

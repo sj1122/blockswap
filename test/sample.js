@@ -7,15 +7,30 @@ var CHAINCODE_API_URL = PEER_NODE_URL_BASE + "/chaincode";
 
 var CHAINCODE_URL = "https://github.com/habond/blockswap/chaincode";
 
-console.log("Deploying Chaincode");
-client.post(CHAINCODE_API_URL, CreateDeployPayload(CHAINCODE_URL, "init", ["hi there"]), function (data, response) {
-	console.log(data);
-    var chaincode_id = data.result.message;
-	console.log("Getting Value");
-	client.post(CHAINCODE_API_URL, CreateQueryPayload(chaincode_id, "getOrder", ["hello_world"]), function (data, response) {
+
+module.exports = function(init_args) {
+
+	var deployment_id = null;
+
+	client.post(CHAINCODE_API_URL, CreateDeployPayload(CHAINCODE_URL, "init", init_args), function(data, response) {
 		console.log(data);
+    	deployment_id = data.result.message;
 	});
-});
+
+	return {
+		query: function(fn, args) {
+			client.post(CHAINCODE_API_URL, CreateQueryPayload(deployment_id, fn, args), function (data, response) {
+				console.log(data);
+			});
+		},
+		invoke: function(fn, args) {
+			client.post(CHAINCODE_API_URL, CreateInvokePayload(deployment_id, fn, args), function (data, response) {
+				console.log(data);
+			});
+		}
+	};
+
+};
 
 function CreateDeployPayload(url, fn, args) {
 	return {
