@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-//	"strconv"
-//	"encoding/json"
+	"strconv"
+	"encoding/json"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -32,11 +32,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	// Handle different functions
 	if function == "addOrder" {
 		investor := args[0]
-		ioi := args[1]
-		/*ioi, err := strconv.ParseFloat(args[1], 64)
+		ioi, err := strconv.ParseFloat(args[1], 64)
 		if err != nil {
 	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
-    	}*/
+    	}
 		return t.addOrder(stub, investor, ioi)
 	}
 	fmt.Println("invoke did not find func: " + function)
@@ -60,44 +59,34 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 	return nil, errors.New("Received unknown function query: " + function)
 }
 
-/*type Order struct {
-	investor	string
-	ioi 		float64
-	alloc 		float64
-}*/
+type Order struct {
+	Investor	string 		`json:"investor"`
+	Ioi 		float64 	`json:"ioi"`
+	Alloc 		float64		`json:"alloc"`
+}
 
-func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor string, ioi string) ([]byte, error)  {
-	/*order := Order{investor: investor, ioi: ioi}
+func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor string, ioi float64) ([]byte, error)  {
+	order := Order{
+		Investor: investor, 
+		Ioi: ioi, 
+		Alloc: 0.0,
+	}
 	orderJson, err := json.Marshal(order)
 	if err != nil {
         return nil, errors.New("Unable to Marshal order")
     }
 	orderJsonBytes := []byte(orderJson)
-	err = stub.PutState(investor, []byte(orderJson))
+	err = stub.PutState(investor, orderJsonBytes)
 	if err != nil {
         return nil, errors.New("Unable to put order JSON")
     }
-	return orderJsonBytes, nil*/
-	err := stub.PutState(investor, []byte(ioi))
-	if err != nil {
-        return nil, errors.New("Unable to put value")
-    }
-<<<<<<< HEAD
-    return []byte("JUST A TEST"), nil
-=======
-	return []byte("Test"), nil
->>>>>>> 620ce5bdde5b4cc7400ab78d6b617147b108d75d
+	return nil, nil
 }
 
 func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
-	/*orderJsonBytes, err := stub.GetState(investor)
+	orderJsonBytes, err := stub.GetState(investor)
 	if err != nil {
         return nil, errors.New("Unable to retrieve order for " + investor)
     }
-	return orderJsonBytes, nil*/
-	ioi, err := stub.GetState(investor)
-	if err != nil {
-        return nil, errors.New("Unable to get value")
-    }
-    return ioi, nil
+	return orderJsonBytes, nil
 }
