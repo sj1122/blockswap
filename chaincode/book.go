@@ -37,6 +37,13 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
     	}
 		return t.addOrder(stub, investor, ioi)
+	} else if function == "allocateOrder" {
+		investor := args[0]
+		alloc, err := strconv.ParseFloat(args[1], 64)
+		if err != nil {
+	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
+    	}
+		return t.allocateOrder(stub, investor, alloc)	
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -89,4 +96,28 @@ func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor st
         return nil, errors.New("Unable to retrieve order for " + investor)
     }
 	return orderJsonBytes, nil
+}
+
+func (t *SimpleChaincode) allocateOrder(stub shim.ChaincodeStubInterface, investor string, alloc float64) ([]byte, error) {
+	orderJsonBytes, err := stub.GetState(investor)
+	if err != nil {
+        return nil, errors.New("Unable to retrieve order for " + investor)
+    }
+    var order Order
+    err = json.Unmarshal(orderJsonBytes, &order)
+    if err != nil {
+        return nil, errors.New("Unable to unmarshal order")
+    }
+    order.Alloc = alloc
+
+    orderJson, err := json.Marshal(order)
+	if err != nil {
+        return nil, errors.New("Unable to Marshal order")
+    }
+	orderJsonBytes = []byte(orderJson)
+	err = stub.PutState(investor, orderJsonBytes)
+	if err != nil {
+        return nil, errors.New("Unable to put order JSON")
+    }
+	return nil, nil
 }
