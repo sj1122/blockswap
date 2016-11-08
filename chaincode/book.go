@@ -74,37 +74,49 @@ type Order struct {
 }
 
 func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor string, ioi float64) ([]byte, error)  {
-	order := Order{
-		Investor: investor, 
-		Ioi: ioi, 
-		Alloc: 0.0,
-	}
-	orderbookJson, _ := stub.GetState("orderbook")
-	var orderbook map[string]Order
-	_ = json.Unmarshal(orderbookJson, &orderbook)
-	orderbook[investor] = order
-	orderbookJson, _ = json.Marshal(orderbook)
-	_ = stub.PutState("orderbook", []byte(orderbookJson))
+	order := Order{Investor: investor, Ioi: ioi, Alloc: 0.0}
+	saveOrderToBlockChain(stub, order)
 	return nil, nil
 }
 
 func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
-	orderbookJson, _ := stub.GetState("orderbook")
-	var orderbook map[string]Order
-	_ = json.Unmarshal(orderbookJson, &orderbook)
-	order := orderbook[investor]
-	orderJson, _ := json.Marshal(order)
-	return orderJson, nil
+	orderJson := getOrderAsJsonFromBlockchain(stub, investor)
+	return []byte(orderJson), nil
 }
 
 func (t *SimpleChaincode) allocateOrder(stub shim.ChaincodeStubInterface, investor string, alloc float64) ([]byte, error) {
+	order := getOrderFromBlockChain(stub, investor)
+	order.Alloc = alloc
+	saveOrderToBlockChain(stub, order)
+	return nil, nil
+}
+
+func getOrderAsJsonFromBlockchain(stub shim.ChaincodeStubInterface, investor string) string {
+	order := getOrderFromBlockChain(stub, investor)
+	orderJson, _ := json.Marshal(order)
+	return string(orderJson)
+}
+
+func getOrderFromBlockChain(stub shim.ChaincodeStubInterface, investor string) Order {
+	orderbook := getOrderbookFromBlockChain(stub)
+	return orderbook[investor]
+}
+
+func saveOrderToBlockChain(stub shim.ChaincodeStubInterface, order Order) {
+	orderbook := getOrderbookFromBlockChain(stub)
+	orderbook[order.Investor] = order
+	saveOrderbookToBlockChain(stub, orderbook)
+}
+
+func getOrderbookFromBlockChain(stub shim.ChaincodeStubInterface) map[string]Order {
 	orderbookJson, _ := stub.GetState("orderbook")
 	var orderbook map[string]Order
 	_ = json.Unmarshal(orderbookJson, &orderbook)
-	order := orderbook[investor]
-	order.Alloc = alloc
-	orderbook[investor] = order
-	orderbookJson, _ = json.Marshal(orderbookJson)
-	_ = stub.PutState("orderbook", []byte(orderbookJson))
-	return nil, nil
+	return orderbook
 }
+
+func saveOrderbookToBlockChain(stub shim.ChaincodeStubInterface, orderbook map[string]Order) {
+	orderbookJson, _ := json.Marshal(orderbook)
+	_ = stub.PutState("orderbook", []byte(orderbookJson))
+}
+
