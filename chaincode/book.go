@@ -22,6 +22,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	if len(args) > 0 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 0")
 	}
+	_ = stub.PutState("orderbook", []byte("{}"))
 	return nil, nil
 }
 
@@ -78,46 +79,32 @@ func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor st
 		Ioi: ioi, 
 		Alloc: 0.0,
 	}
-	orderJson, err := json.Marshal(order)
-	if err != nil {
-        return nil, errors.New("Unable to Marshal order")
-    }
-	orderJsonBytes := []byte(orderJson)
-	err = stub.PutState(investor, orderJsonBytes)
-	if err != nil {
-        return nil, errors.New("Unable to put order JSON")
-    }
+	orderbookJson, _ := stub.GetState("orderbook")
+	var orderbook map[string]Order
+	_ = json.Unmarshal(orderbookJson, &orderbook)
+	orderbook[investor] = order
+	orderbookJson, _ = json.Marshal(orderbookJson)
+	_ = stub.PutState("orderbook", []byte(orderbookJson))
 	return nil, nil
 }
 
 func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
-	orderJsonBytes, err := stub.GetState(investor)
-	if err != nil {
-        return nil, errors.New("Unable to retrieve order for " + investor)
-    }
-	return orderJsonBytes, nil
+	orderbookJson, _ := stub.GetState("orderbook")
+	var orderbook map[string]Order
+	_ = json.Unmarshal(orderbookJson, &orderbook)
+	order := orderbook[investor]
+	orderJson, _ := json.Marshal(order)
+	return orderJson, nil
 }
 
 func (t *SimpleChaincode) allocateOrder(stub shim.ChaincodeStubInterface, investor string, alloc float64) ([]byte, error) {
-	orderJsonBytes, err := stub.GetState(investor)
-	if err != nil {
-        return nil, errors.New("Unable to retrieve order for " + investor)
-    }
-    var order Order
-    err = json.Unmarshal(orderJsonBytes, &order)
-    if err != nil {
-        return nil, errors.New("Unable to unmarshal order")
-    }
-    order.Alloc = alloc
-
-    orderJson, err := json.Marshal(order)
-	if err != nil {
-        return nil, errors.New("Unable to Marshal order")
-    }
-	orderJsonBytes = []byte(orderJson)
-	err = stub.PutState(investor, orderJsonBytes)
-	if err != nil {
-        return nil, errors.New("Unable to put order JSON")
-    }
+	orderbookJson, _ := stub.GetState("orderbook")
+	var orderbook map[string]Order
+	_ = json.Unmarshal(orderbookJson, &orderbook)
+	order := orderbook[investor]
+	order.Alloc = alloc
+	orderbook[investor] = order
+	orderbookJson, _ = json.Marshal(orderbookJson)
+	_ = stub.PutState("orderbook", []byte(orderbookJson))
 	return nil, nil
 }
