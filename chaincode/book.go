@@ -8,17 +8,21 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
-type SimpleChaincode struct { }
+type Chaincode struct { }
+
+type ChaincodeFunctions struct {
+	stub shim.ChaincodeStubInterface
+}
 
 func main() {
-	err := shim.Start(new(SimpleChaincode))
+	err := shim.Start(new(Chaincode))
 	if err != nil {
 		fmt.Printf("Error starting Simple chaincode: %s", err)
 	}
 }
 
 // Init resets all the things
-func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	if len(args) > 0 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 0")
 	}
@@ -26,37 +30,37 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
-func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t Chaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("invoke is running " + function)
-
+	fns := ChaincodeFunctions{stub}
 	if function == "addOrder" {
 		investor := args[0]
 		ioi, err := strconv.ParseFloat(args[1], 64)
 		if err != nil {
 	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
     	}
-		return addOrder(stub, investor, ioi)
+		return fns.addOrder(investor, ioi)
 	} else if function == "allocateOrder" {
 		investor := args[0]
 		alloc, err := strconv.ParseFloat(args[1], 64)
 		if err != nil {
 	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
     	}
-		return allocateOrder(stub, investor, alloc)	
+		return fns.allocateOrder(investor, alloc)	
 	}
 	fmt.Println("invoke did not find func: " + function)
 
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
 
-func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("query is running " + function)
-
+	fns := ChaincodeFunctions{stub}
 	if function == "getOrder" {
 		investor := args[0]
-		return getOrder(stub, investor)
+		return fns.getOrder(investor)
 	} else if function == "getOrderbook" {
-		return getOrderbook(stub)
+		return fns.getOrderbook()
 	}
 	fmt.Println("query did not find func: " + function)
 
@@ -69,54 +73,54 @@ type Order struct {
 	Alloc 		float64		`json:"alloc"`
 }
 
-func addOrder(stub shim.ChaincodeStubInterface, investor string, ioi float64) ([]byte, error)  {
+func (c ChaincodeFunctions) addOrder(investor string, ioi float64) ([]byte, error)  {
 	order := Order{Investor: investor, Ioi: ioi, Alloc: 0.0}
-	saveOrderToBlockChain(stub, order)
+	c.saveOrderToBlockChain(order)
 	return nil, nil
 }
 
-func getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
-	orderJson := getOrderAsJsonFromBlockchain(stub, investor)
+func (c ChaincodeFunctions) getOrder(investor string) ([]byte, error) {
+	orderJson := c.getOrderAsJsonFromBlockchain(investor)
 	return []byte(orderJson), nil
 }
 
-func getOrderbook(stub shim.ChaincodeStubInterface) ([]byte, error) {
-	orderbookJson, _ := stub.GetState("orderbook")
+func (c ChaincodeFunctions) getOrderbook() ([]byte, error) {
+	orderbookJson, _ := c.stub.GetState("orderbook")
 	return []byte(orderbookJson), nil
 }
 
-func allocateOrder(stub shim.ChaincodeStubInterface, investor string, alloc float64) ([]byte, error) {
-	order := getOrderFromBlockChain(stub, investor)
+func (c ChaincodeFunctions) allocateOrder(investor string, alloc float64) ([]byte, error) {
+	order := c.getOrderFromBlockChain(investor)
 	order.Alloc = alloc
-	saveOrderToBlockChain(stub, order)
+	c.saveOrderToBlockChain(order)
 	return nil, nil
 }
 
-func getOrderAsJsonFromBlockchain(stub shim.ChaincodeStubInterface, investor string) string {
-	order := getOrderFromBlockChain(stub, investor)
+func (c ChaincodeFunctions) getOrderAsJsonFromBlockchain(investor string) string {
+	order := c.getOrderFromBlockChain(investor)
 	orderJson, _ := json.Marshal(order)
 	return string(orderJson)
 }
 
-func getOrderFromBlockChain(stub shim.ChaincodeStubInterface, investor string) Order {
-	orderbook := getOrderbookFromBlockChain(stub)
+func (c ChaincodeFunctions) getOrderFromBlockChain(investor string) Order {
+	orderbook := c.getOrderbookFromBlockChain()
 	return orderbook[investor]
 }
 
-func saveOrderToBlockChain(stub shim.ChaincodeStubInterface, order Order) {
-	orderbook := getOrderbookFromBlockChain(stub)
+func (c ChaincodeFunctions) saveOrderToBlockChain(order Order) {
+	orderbook := c.getOrderbookFromBlockChain()
 	orderbook[order.Investor] = order
-	saveOrderbookToBlockChain(stub, orderbook)
+	c.saveOrderbookToBlockChain(orderbook)
 }
 
-func getOrderbookFromBlockChain(stub shim.ChaincodeStubInterface) map[string]Order {
-	orderbookJson, _ := stub.GetState("orderbook")
+func (c ChaincodeFunctions) getOrderbookFromBlockChain() map[string]Order {
+	orderbookJson, _ := c.stub.GetState("orderbook")
 	var orderbook map[string]Order
 	_ = json.Unmarshal(orderbookJson, &orderbook)
 	return orderbook
 }
 
-func saveOrderbookToBlockChain(stub shim.ChaincodeStubInterface, orderbook map[string]Order) {
+func (c ChaincodeFunctions) saveOrderbookToBlockChain(orderbook map[string]Order) {
 	orderbookJson, _ := json.Marshal(orderbook)
-	_ = stub.PutState("orderbook", []byte(orderbookJson))
+	_ = c.stub.PutState("orderbook", []byte(orderbookJson))
 }
