@@ -83,7 +83,7 @@ func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor st
 	var orderbook map[string]Order
 	_ = json.Unmarshal(orderbookJson, &orderbook)
 	orderbook[investor] = order
-	orderbookJson, _ = json.Marshal(orderbookJson)
+	orderbookJson, _ = json.Marshal(orderbook)
 	_ = stub.PutState("orderbook", []byte(orderbookJson))
 	return nil, nil
 }
@@ -105,6 +105,6 @@ func (t *SimpleChaincode) allocateOrder(stub shim.ChaincodeStubInterface, invest
 	order.Alloc = alloc
 	orderbook[investor] = order
 	orderbookJson, _ = json.Marshal(orderbookJson)
-	_ = stub.PutState("orderbook", []byte(orderbookJson))
+	_ = stub.PutState("orderbook", []byte(orderbook))
 	return nil, nil
 }
