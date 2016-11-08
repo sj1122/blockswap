@@ -84,6 +84,11 @@ func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor st
 	return []byte(orderJson), nil
 }
 
+func (t *SimpleChaincode) getOrderbook(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
+	orderbookJson, _ := stub.GetState("orderbook")
+	return []byte(orderbookJson), nil
+}
+
 func (t *SimpleChaincode) allocateOrder(stub shim.ChaincodeStubInterface, investor string, alloc float64) ([]byte, error) {
 	order := getOrderFromBlockChain(stub, investor)
 	order.Alloc = alloc
@@ -119,4 +124,3 @@ func saveOrderbookToBlockChain(stub shim.ChaincodeStubInterface, orderbook map[s
 	orderbookJson, _ := json.Marshal(orderbook)
 	_ = stub.PutState("orderbook", []byte(orderbookJson))
 }
-
