@@ -35,14 +35,14 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		if err != nil {
 	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
     	}
-		return t.addOrder(stub, investor, ioi)
+		return addOrder(stub, investor, ioi)
 	} else if function == "allocateOrder" {
 		investor := args[0]
 		alloc, err := strconv.ParseFloat(args[1], 64)
 		if err != nil {
 	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
     	}
-		return t.allocateOrder(stub, investor, alloc)	
+		return allocateOrder(stub, investor, alloc)	
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -54,9 +54,9 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 	if function == "getOrder" {
 		investor := args[0]
-		return t.getOrder(stub, investor)
+		return getOrder(stub, investor)
 	} else if function == "getOrderbook" {
-		return t.getOrderbook(stub)
+		return getOrderbook(stub)
 	}
 	fmt.Println("query did not find func: " + function)
 
