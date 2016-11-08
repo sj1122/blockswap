@@ -61,6 +61,8 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 	} else if function == "getOrder" { //read a variable
 		investor := args[0]
 		return t.getOrder(stub, investor)
+	} else if function == "getOrderbook" {
+		return t.getOrderbook(stub)
 	}
 	fmt.Println("query did not find func: " + function)
 
@@ -84,7 +86,7 @@ func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor st
 	return []byte(orderJson), nil
 }
 
-func (t *SimpleChaincode) getOrderbook(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
+func (t *SimpleChaincode) getOrderbook(stub shim.ChaincodeStubInterface) ([]byte, error) {
 	orderbookJson, _ := stub.GetState("orderbook")
 	return []byte(orderbookJson), nil
 }
