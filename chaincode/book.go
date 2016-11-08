@@ -26,11 +26,9 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
-// Invoke is our entry point to invoke a chaincode function
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("invoke is running " + function)
 
-	// Handle different functions
 	if function == "addOrder" {
 		investor := args[0]
 		ioi, err := strconv.ParseFloat(args[1], 64)
@@ -51,14 +49,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
 
-// Query is our entry point for queries
 func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("query is running " + function)
 
-	// Handle different functions
-	if function == "init" {
-		t.Init(stub, function, args)
-	} else if function == "getOrder" { //read a variable
+	if function == "getOrder" {
 		investor := args[0]
 		return t.getOrder(stub, investor)
 	} else if function == "getOrderbook" {
@@ -75,23 +69,23 @@ type Order struct {
 	Alloc 		float64		`json:"alloc"`
 }
 
-func (t *SimpleChaincode) addOrder(stub shim.ChaincodeStubInterface, investor string, ioi float64) ([]byte, error)  {
+func addOrder(stub shim.ChaincodeStubInterface, investor string, ioi float64) ([]byte, error)  {
 	order := Order{Investor: investor, Ioi: ioi, Alloc: 0.0}
 	saveOrderToBlockChain(stub, order)
 	return nil, nil
 }
 
-func (t *SimpleChaincode) getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
+func getOrder(stub shim.ChaincodeStubInterface, investor string) ([]byte, error) {
 	orderJson := getOrderAsJsonFromBlockchain(stub, investor)
 	return []byte(orderJson), nil
 }
 
-func (t *SimpleChaincode) getOrderbook(stub shim.ChaincodeStubInterface) ([]byte, error) {
+func getOrderbook(stub shim.ChaincodeStubInterface) ([]byte, error) {
 	orderbookJson, _ := stub.GetState("orderbook")
 	return []byte(orderbookJson), nil
 }
 
-func (t *SimpleChaincode) allocateOrder(stub shim.ChaincodeStubInterface, investor string, alloc float64) ([]byte, error) {
+func allocateOrder(stub shim.ChaincodeStubInterface, investor string, alloc float64) ([]byte, error) {
 	order := getOrderFromBlockChain(stub, investor)
 	order.Alloc = alloc
 	saveOrderToBlockChain(stub, order)
