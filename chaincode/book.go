@@ -48,11 +48,6 @@ func (t Chaincode) Invoke(stub shim.ChaincodeStubInterface, function string, arg
 	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
     	}
 		return fns.AllocateOrder(investor, alloc)	
-	}  else if function == "echo" {
-		address := args[0]
-		f := "echo"
-		arg := args[1]
-		return fns.Echo(address, f, arg)
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -67,8 +62,12 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 		return fns.GetOrder(investor)
 	} else if function == "getOrderbook" {
 		return fns.GetOrderbook()
+	} else if function == "echo" {
+		address := args[0]
+		f := "echo"
+		arg := args[1]
+		return fns.Echo(address, f, arg)
 	}
-
 	fmt.Println("query did not find func: " + function)
 
 	return nil, errors.New("Received unknown function query: " + function)
@@ -107,7 +106,7 @@ func (c ChaincodeFunctions) AllocateOrder(investor string, alloc float64) ([]byt
 
 func (c ChaincodeFunctions) Echo(address string, f string, arg string) ([]byte, error) {
 	invokeArgs := util.ToChaincodeArgs(f, arg)
-	return c.stub.InvokeChaincode(address, invokeArgs)
+	return c.stub.QueryChaincode(address, invokeArgs)
 }
 
 // Private Functions
