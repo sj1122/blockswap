@@ -21,5 +21,5 @@ func (t Chaincode) Invoke(stub shim.ChaincodeStubInterface, function string, arg
 }
 
 func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	return []byte("The value is" + args[0]), nil
+	return []byte("Echo: " + args[0]), nil
 }
