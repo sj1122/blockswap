@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"encoding/json"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/core/util"
 )
 
 type Chaincode struct { }
@@ -61,6 +62,11 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 		return fns.GetOrder(investor)
 	} else if function == "getOrderbook" {
 		return fns.GetOrderbook()
+	} else if function == "echo" {
+		address := args[0]
+		f := "echo"
+		arg := args[1]
+		return fns.Echo(address, f, arg)
 	}
 	fmt.Println("query did not find func: " + function)
 
@@ -96,6 +102,11 @@ func (c ChaincodeFunctions) AllocateOrder(investor string, alloc float64) ([]byt
 	order.Alloc = alloc
 	c.saveOrderToBlockChain(order)
 	return nil, nil
+}
+
+func (c ChaincodeFunctions) Echo(address string, f string, arg string) ([]byte, error) {
+	invokeArgs := util.ToChaincodeArgs(f, arg)
+	return c.stub.InvokeChaincode(address, invokeArgs)
 }
 
 // Private Functions
