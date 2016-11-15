@@ -14,6 +14,7 @@ type ChaincodeFunctions struct {
 	stub shim.ChaincodeStubInterface
 }
 
+// Adding a comment
 func main() {
 	err := shim.Start(new(Chaincode))
 	if err != nil {
