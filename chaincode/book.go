@@ -29,7 +29,6 @@ func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args 
 	}
 	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft, open, closed, allocated]
 	_ = stub.PutState("orderbook", []byte("{}"))
-	stub.SetEvent("Problemozz", []byte("Uh oh!"))
 	return nil, nil
 }
 
@@ -95,13 +94,13 @@ func (c ChaincodeFunctions) GetDealStatus() ([]byte, error)  {
 
 func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error)  {
 	_ = c.stub.PutState("dealStatus", []byte(dealStatus))
+	c.stub.SetEvent("Book Status Change", []byte("{\"status\":\"" + dealStatus + "\""))
 	return nil, nil
 }
 
 func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, error)  {
 	dealStatus, _ := c.GetDealStatus()
 	if(string(dealStatus) != "open") {
-		// TEST
 		c.stub.SetEvent("Problemo", []byte("Uh oh!"))
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
 	}
