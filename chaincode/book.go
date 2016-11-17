@@ -27,7 +27,7 @@ func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args 
 	if len(args) > 0 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 0")
 	}
-	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft,announced,closed,allocated]
+	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft, open, closed, allocated]
 	_ = stub.PutState("orderbook", []byte("{}"))
 	return nil, nil
 }
@@ -98,6 +98,10 @@ func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error) 
 }
 
 func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, error)  {
+	dealStatus, _ := c.GetDealStatus()
+	if(string(dealStatus) != "open") {
+		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
+	}
 	order := Order{Investor: investor, Ioi: ioi, Alloc: 0.0}
 	c.saveOrderToBlockChain(order)
 	return nil, nil
