@@ -100,6 +100,7 @@ func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error) 
 func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, error)  {
 	dealStatus, _ := c.GetDealStatus()
 	if(string(dealStatus) != "open") {
+		c.stub.SetEvent("Problemo", []byte("Uh oh!"))
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
 	}
 	order := Order{Investor: investor, Ioi: ioi, Alloc: 0.0}
