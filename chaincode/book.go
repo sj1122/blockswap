@@ -94,18 +94,19 @@ func (c ChaincodeFunctions) GetDealStatus() ([]byte, error)  {
 
 func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error)  {
 	_ = c.stub.PutState("dealStatus", []byte(dealStatus))
-	c.stub.SetEvent("Book Status Change", []byte("{\"status\":\"" + dealStatus + "\""))
+	c.stub.SetEvent("Book Status Change", []byte("{\"status\":\"" + dealStatus + "\"}"))
 	return nil, nil
 }
 
 func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, error)  {
 	dealStatus, _ := c.GetDealStatus()
 	if(string(dealStatus) != "open") {
-		c.stub.SetEvent("Problemo", []byte("Uh oh!"))
+		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"book is not open\"}"))
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
 	}
 	order := Order{Investor: investor, Ioi: ioi, Alloc: 0.0}
 	c.saveOrderToBlockChain(order)
+	c.stub.SetEvent("Order Added", []byte("{\"investor\":\"" + investor + "\"}"))
 	return nil, nil
 }
 
