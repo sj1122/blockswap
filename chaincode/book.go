@@ -29,7 +29,7 @@ func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args 
 	}
 	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft, open, closed, allocated]
 	_ = stub.PutState("orderbook", []byte("{}"))
-	_ = stub.SetEvent("Deal Created", []byte(""))
+	stub.SetEvent("Problemozz", []byte("Uh oh!"))
 	return nil, nil
 }
 
