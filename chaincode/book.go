@@ -27,6 +27,7 @@ func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args 
 	if len(args) > 0 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 0")
 	}
+	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft,announced,closed,allocated]
 	_ = stub.PutState("orderbook", []byte("{}"))
 	return nil, nil
 }
@@ -48,6 +49,9 @@ func (t Chaincode) Invoke(stub shim.ChaincodeStubInterface, function string, arg
 	        return nil, errors.New("Failed to parse " + args[1] + " as a float64")
     	}
 		return fns.AllocateOrder(investor, alloc)	
+	} else if function == "updateDealStatus" {
+		status := args[0]
+		return fns.UpdateDealStatus(status)
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -67,6 +71,8 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 		f := "echo"
 		arg := args[1]
 		return fns.Echo(address, f, arg)
+	} else if function == "getDealStatus" {
+		return fns.GetDealStatus()
 	}
 	fmt.Println("query did not find func: " + function)
 
@@ -80,6 +86,16 @@ type Order struct {
 }
 
 // Public Functions
+
+func (c ChaincodeFunctions) GetDealStatus() ([]byte, error)  {
+	dealStatus, _ := c.stub.GetState("dealStatus")
+	return dealStatus, nil
+}
+
+func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error)  {
+	_ = c.stub.PutState("dealStatus", []byte(dealStatus))
+	return nil, nil
+}
 
 func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, error)  {
 	order := Order{Investor: investor, Ioi: ioi, Alloc: 0.0}
