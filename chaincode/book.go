@@ -58,8 +58,8 @@ func (t Chaincode) Invoke(stub shim.ChaincodeStubInterface, function string, arg
 func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("query is running " + function)
 	fns := ChaincodeFunctions{stub}
-	if function == "getUsername" {
-		return fns.GetUsername()
+	if function == "getRole" {
+		return fns.GetRole()
 	} else if function == "getOrder" {
 		investor := args[0]
 		return fns.GetOrder(investor)
@@ -86,10 +86,10 @@ type Order struct {
 
 // Public Functions
 
-func (c ChaincodeFunctions) GetUsername() ([]byte, error) {
-    username, err := c.stub.ReadCertAttribute("username");
-    if err != nil { return nil, errors.New("Couldn't get attribute 'username'. Error: " + err.Error()) }
-	return username, nil
+func (c ChaincodeFunctions) GetRole() ([]byte, error) {
+    role, err := c.stub.ReadCertAttribute("role");
+    if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
+	return role, nil
 }
 
 func (c ChaincodeFunctions) GetDealStatus() ([]byte, error)  {
