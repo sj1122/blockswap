@@ -87,7 +87,8 @@ type Order struct {
 // Public Functions
 
 func (c ChaincodeFunctions) GetUsername() ([]byte, error) {
-    username, _ := c.stub.ReadCertAttribute("username");
+    username, err := c.stub.ReadCertAttribute("username");
+    if err != nil { return nil, errors.New("Couldn't get attribute 'username'. Error: " + err.Error()) }
 	return username, nil
 }
 
