@@ -87,7 +87,7 @@ type Order struct {
 // Public Functions
 
 func (c ChaincodeFunctions) GetRole() ([]byte, error) {
-    role, err := c.stub.GetCallerMetadata();
+    role, err := c.stub.GetCallerCertificate();
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
 	return role, nil
 }
