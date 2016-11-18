@@ -24,9 +24,6 @@ func main() {
 
 // Init resets all the things
 func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	if len(args) > 0 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 0")
-	}
 	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft, open, closed, allocated]
 	_ = stub.PutState("orderbook", []byte("{}"))
 	return nil, nil
