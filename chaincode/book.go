@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"encoding/json"
+	"encoding/base64"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/core/util"
 )
@@ -89,7 +90,8 @@ type Order struct {
 func (c ChaincodeFunctions) GetRole() ([]byte, error) {
     role, err := c.stub.GetCallerCertificate();
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
-	return role, nil
+    str := base64.StdEncoding.EncodeToString(role)
+	return []byte(str), nil
 }
 
 func (c ChaincodeFunctions) GetDealStatus() ([]byte, error)  {
