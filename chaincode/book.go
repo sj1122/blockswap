@@ -121,6 +121,7 @@ func (c ChaincodeFunctions) AllocateOrder(investor string, alloc float64) ([]byt
 	order := c.getOrderFromBlockChain(investor)
 	order.Alloc = alloc
 	c.saveOrderToBlockChain(order)
+	c.stub.SetEvent("Order Allocated", []byte("{\"investor\":\"" + investor + "\"}"))
 	return nil, nil
 }
 
