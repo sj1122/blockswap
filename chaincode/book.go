@@ -88,7 +88,8 @@ type Order struct {
 // Public Functions
 
 func (c ChaincodeFunctions) GetRole() ([]byte, error) {
-    role, err := c.stub.GetCallerCertificate();
+    //role, err := c.stub.GetCallerCertificate();
+    role, err := c.stub.ReadCertAttribute("role")
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
     str := base64.StdEncoding.EncodeToString(role)
 	return []byte(str), nil
