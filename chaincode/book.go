@@ -61,6 +61,8 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 	fns := ChaincodeFunctions{stub}
 	if function == "getRole" {
 		return fns.GetRole()
+	} else if function == "getCompany" {
+		return fns.GetCompany()
 	} else if function == "getOrder" {
 		investor := args[0]
 		return fns.GetOrder(investor)
@@ -88,8 +90,15 @@ type Order struct {
 // Public Functions
 
 func (c ChaincodeFunctions) GetRole() ([]byte, error) {
-    role, err := c.stub.ReadCertAttribute("company")
+    role, err := c.stub.ReadCertAttribute("role")
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
+    str := base64.StdEncoding.EncodeToString(role)
+	return []byte(str), nil
+}
+
+func (c ChaincodeFunctions) GetCompany() ([]byte, error) {
+    role, err := c.stub.ReadCertAttribute("company")
+    if err != nil { return nil, errors.New("Couldn't get attribute 'company'. Error: " + err.Error()) }
     str := base64.StdEncoding.EncodeToString(role)
 	return []byte(str), nil
 }
