@@ -22,7 +22,6 @@ func main() {
 	}
 }
 
-// Init resets all the things
 func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fns := ChaincodeFunctions{stub}
 	company, _ := fns.GetCompany()
