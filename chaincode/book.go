@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"encoding/json"
-	"encoding/base64"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/core/util"
 )
@@ -25,6 +24,9 @@ func main() {
 
 // Init resets all the things
 func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	fns := ChaincodeFunctions{stub}
+	company, _ := fns.GetCompany()
+	_ = stub.PutState("issuer", company)
 	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft, open, closed, allocated]
 	_ = stub.PutState("orderbook", []byte("{}"))
 	return nil, nil
@@ -63,6 +65,8 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 		return fns.GetRole()
 	} else if function == "getCompany" {
 		return fns.GetCompany()
+	} else if function == "getIssuer" {
+		return fns.getIssuer()
 	} else if function == "getOrder" {
 		investor := args[0]
 		return fns.GetOrder(investor)
@@ -92,18 +96,21 @@ type Order struct {
 func (c ChaincodeFunctions) GetRole() ([]byte, error) {
     role, err := c.stub.ReadCertAttribute("role")
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
-    str := base64.StdEncoding.EncodeToString(role)
-	return []byte(str), nil
+	return role, nil
 }
 
 func (c ChaincodeFunctions) GetCompany() ([]byte, error) {
-    role, err := c.stub.ReadCertAttribute("company")
+    company, err := c.stub.ReadCertAttribute("company")
     if err != nil { return nil, errors.New("Couldn't get attribute 'company'. Error: " + err.Error()) }
-    str := base64.StdEncoding.EncodeToString(role)
-	return []byte(str), nil
+	return company, nil
 }
 
-func (c ChaincodeFunctions) GetDealStatus() ([]byte, error)  {
+func (c ChaincodeFunctions) getIssuer() ([]byte, error) {
+	dealIssuer, _ := c.stub.GetState("issuer")
+	return dealIssuer, nil
+}
+
+func (c ChaincodeFunctions) GetDealStatus() ([]byte, error) {
 	dealStatus, _ := c.stub.GetState("dealStatus")
 	return dealStatus, nil
 }
