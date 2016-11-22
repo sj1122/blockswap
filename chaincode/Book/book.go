@@ -97,6 +97,7 @@ type Order struct {
 func (c ChaincodeFunctions) Ping() ([]byte, error) {
     return []byte("pong"), nil
 }
+
 func (c ChaincodeFunctions) GetRole() ([]byte, error) {
     role, err := c.stub.ReadCertAttribute("role")
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
