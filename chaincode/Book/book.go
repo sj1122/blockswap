@@ -60,7 +60,9 @@ func (t Chaincode) Invoke(stub shim.ChaincodeStubInterface, function string, arg
 func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("query is running " + function)
 	fns := ChaincodeFunctions{stub}
-	if function == "getRole" {
+	if function == "ping" {
+		return fns.Ping()
+	} else if function == "getRole" {
 		return fns.GetRole()
 	} else if function == "getCompany" {
 		return fns.GetCompany()
@@ -92,6 +94,9 @@ type Order struct {
 
 // Public Functions
 
+func (c ChaincodeFunctions) Ping() ([]byte, error) {
+    return []byte("pong"), nil
+}
 func (c ChaincodeFunctions) GetRole() ([]byte, error) {
     role, err := c.stub.ReadCertAttribute("role")
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
