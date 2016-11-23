@@ -1,0 +1,34 @@
+<div>Deployment Id: {{ deploymentId }}</div>
+<div>Deployed: {{ deployed }}</div>
+<div>Role: {{ role }}, Company: {{ company }}, Issuer: {{ issuer }}</div>
+<div>Deal Status: {{ dealStatus }}</div>
+<div>
+	<button ng-click="createDeal()">Create Deal</button>
+	<button ng-click="getRole()">Get Role</button>
+	<button ng-click="getCompany()">Get Company</button>
+	<button ng-click="getIssuer()">Get Issuer</button>
+	<button ng-click="getDealStatus()">Get Deal Status</button>
+	<button ng-click="updateDealStatus()">Open Books</button>
+	<button ng-click="getOrderbook()">Get Order Book</button>
+</div>
+<div>
+	Investor: <input type="text" ng-model="newOrder.investor">
+	Amount: <input type="number" ng-model="newOrder.amount">
+	<button ng-click="addOrder()">Add Order</button>
+</div>
+<div>Orderbook: {{ orderbook }}</div>
+<div>
+	<table border="1">
+		<tr>
+			<td>Investor</td>
+			<td>Amount</td>
+			<td>Allocation</td>
+		</tr>
+		<tr ng-repeat="(investor, order) in orderbook">
+			<td>{{ order.investor }}</td>
+			<td>{{ order.ioi }}</td>
+			<td><input type="number" ng-model="order.alloc" ng-blur="allocateOrder(order)"></td>
+		</tr>
+	</table>
+</div>
+<div>Events: {{ events }}</div>
