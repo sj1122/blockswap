@@ -21,7 +21,7 @@ func main() {
 }
 
 func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	_ = stub.PutState("deals", []byte("{}"))
+	_ = stub.PutState("deals", []byte("[]"))
 	return nil, nil
 }
 
