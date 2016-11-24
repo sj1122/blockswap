@@ -61,6 +61,7 @@ func (c ChaincodeFunctions) Ping() ([]byte, error) {
 func (c ChaincodeFunctions) RegisterDeal(deploymentId string, issuer string) ([]byte, error)  {
 	deal := Deal{DeploymentId: deploymentId, Issuer: issuer}
 	c.saveDealToBlockChain(deal)
+	c.stub.SetEvent("New Deal Registered", []byte("{\"deploymentId\":\"" + deploymentId + "\"}"))
 	return nil, nil
 }
 
