@@ -110,10 +110,15 @@ func (c ChaincodeFunctions) getDealConfig(address string) DealConfig {
 }
 
 func permissionedForDeal(role string, company string, dealConfig DealConfig) bool {
-	if company == dealConfig.Issuer { return true }
-	if role == "bank" && stringInSlice(company, dealConfig.Banks) { return true }
-	if role == "investor" && dealConfig.BookStatus != "draft" { return true }
-	return false
+	if company == dealConfig.Issuer { 
+		return true 
+	} else if stringInSlice(company, dealConfig.Banks) { 
+		return true
+	} else if dealConfig.BookStatus != "draft" { 
+		return true 
+	} else { 
+		return false
+	}
 }
 
 func stringInSlice(a string, list []string) bool {
