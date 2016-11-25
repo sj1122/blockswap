@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/core/util"
 )
 
 type Chaincode struct { }
@@ -47,6 +48,13 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 	return nil, errors.New("Received unknown function query: " + function)
 }
 
+type DealConfig struct {
+	Issuer 		string 		`json:"issuer"`
+	Banks 		[]string 	`json:"banks"`
+	BookStatus 	string 		`json:"bookStatus"`
+	Price 		float64 	`json:"price"`
+}
+
 type Deal struct {
 	DeploymentId 	string 	`json:"deploymentId"`
 	Issuer			string 	`json:"issuer"`
@@ -66,8 +74,17 @@ func (c ChaincodeFunctions) RegisterDeal(deploymentId string, issuer string) ([]
 }
 
 func (c ChaincodeFunctions) GetDeals() ([]byte, error) {
-	dealsJson, _ := c.stub.GetState("deals")
-	return []byte(dealsJson), nil
+	company, _ := c.stub.ReadCertAttribute("company")
+	deals := c.getDealsFromBlockchain()
+	var ret []Deal // == nil
+    for _, deal := range deals {
+    	dealConfig := c.getDealConfig(deal.DeploymentId)
+        if stringInSlice(string(company), dealConfig.Banks) {
+        	ret = append(ret, deal)
+        }
+    }
+    dealsJson, _ := json.Marshal(ret)
+    return []byte(dealsJson), nil
 }
 
 // Private Functions
@@ -84,4 +101,21 @@ func (c ChaincodeFunctions) getDealsFromBlockchain() []Deal {
 	var deals []Deal
 	_ = json.Unmarshal(dealsJson, &deals)
 	return deals
+}
+
+func (c ChaincodeFunctions) getDealConfig(address string) DealConfig {
+	invokeArgs := util.ToChaincodeArgs("getDealConfig")
+	dealConfigJson, _ := c.stub.QueryChaincode(address, invokeArgs)
+	var dealConfig DealConfig
+	_ = json.Unmarshal(dealConfigJson, &dealConfig)
+	return dealConfig
+}
+
+func stringInSlice(a string, list []string) bool {
+    for _, b := range list {
+        if b == a {
+            return true
+        }
+    }
+    return false
 }

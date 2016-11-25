@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"encoding/json"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	//"github.com/hyperledger/fabric/core/util"
 )
 
 type Chaincode struct { }
