@@ -76,7 +76,7 @@ func (c ChaincodeFunctions) GetDeals() ([]byte, error) {
 	ret := make([]DealConfig, 0)
     for _, deal := range deals {
     	dealConfig := c.getDealConfig(deal)
-        if permissionedForDeal(company, role, dealConfig) {
+        if permissionedForDeal(role, company, dealConfig) {
         	ret = append(ret, dealConfig)
         }
     }
@@ -112,9 +112,9 @@ func (c ChaincodeFunctions) getDealConfig(address string) DealConfig {
 func permissionedForDeal(role string, company string, dealConfig DealConfig) bool {
 	if company == dealConfig.Issuer { 
 		return true 
-	} else if stringInSlice(company, dealConfig.Banks) { 
+	} else if role == "bank" && stringInSlice(company, dealConfig.Banks) { 
 		return true
-	} else if dealConfig.BookStatus != "draft" { 
+	} else if role == "investor" && dealConfig.BookStatus != "draft" { 
 		return true 
 	} else { 
 		return false
