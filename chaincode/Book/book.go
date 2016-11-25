@@ -24,8 +24,11 @@ func main() {
 
 func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fns := ChaincodeFunctions{stub}
+	banks := args[0]
+	_ = args[1] // nonce to stop existing deal being returned
 	company, _ := fns.GetCompany()
 	_ = stub.PutState("issuer", company)
+	_ = stub.PutState("banks", []byte(banks))
 	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft, open, closed, allocated]
 	_ = stub.PutState("orderbook", []byte("{}"))
 	return nil, nil
