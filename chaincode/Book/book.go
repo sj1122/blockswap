@@ -63,7 +63,7 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 	fns := ChaincodeFunctions{stub}
 	if function == "ping" {
 		return fns.Ping()
-	} else if function == "getOrder" {
+	} else if function == "getDealConfig" {
 		return fns.GetDealConfig()
 	} else if function == "getOrder" {
 		investor := args[0]
