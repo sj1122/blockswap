@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"encoding/json"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/hyperledger/fabric/core/util"
+	//"github.com/hyperledger/fabric/core/util"
 )
 
 type Chaincode struct { }
@@ -23,12 +23,10 @@ func main() {
 }
 
 func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	fns := ChaincodeFunctions{stub}
-	banks := args[0]
+	//fns := ChaincodeFunctions{stub}
+	configJson := args[0]
 	_ = args[1] // nonce to stop existing deal being returned
-	company, _ := fns.GetCompany()
-	_ = stub.PutState("issuer", company)
-	_ = stub.PutState("banks", []byte(banks))
+	_ = stub.PutState("dealConfig", []byte(configJson))
 	_ = stub.PutState("dealStatus", []byte("draft")) // Possible Values [draft, open, closed, allocated]
 	_ = stub.PutState("orderbook", []byte("{}"))
 	return nil, nil
@@ -65,30 +63,22 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 	fns := ChaincodeFunctions{stub}
 	if function == "ping" {
 		return fns.Ping()
-	} else if function == "getRole" {
-		return fns.GetRole()
-	} else if function == "getCompany" {
-		return fns.GetCompany()
-	} else if function == "getIssuer" {
-		return fns.GetIssuer()
-	} else if function == "getBanks" {
-		return fns.GetBanks()
 	} else if function == "getOrder" {
 		investor := args[0]
 		return fns.GetOrder(investor)
 	} else if function == "getOrderbook" {
 		return fns.GetOrderbook()
-	} else if function == "echo" {
-		address := args[0]
-		f := "echo"
-		arg := args[1]
-		return fns.Echo(address, f, arg)
-	} else if function == "getDealStatus" {
-		return fns.GetDealStatus()
 	}
 	fmt.Println("query did not find func: " + function)
 
 	return nil, errors.New("Received unknown function query: " + function)
+}
+
+type DealConfig struct {
+	Issuer 		string 		`json:"issuer"`
+	Banks 		[]string 	`json:"banks"`
+	BookStatus 	string 		`json:"bookStatus"`
+	Price 		float64 	`json:"price"`
 }
 
 type Order struct {
@@ -103,42 +93,23 @@ func (c ChaincodeFunctions) Ping() ([]byte, error) {
     return []byte("pong"), nil
 }
 
-func (c ChaincodeFunctions) GetRole() ([]byte, error) {
+/*func (c ChaincodeFunctions) GetRole() ([]byte, error) {
     role, err := c.stub.ReadCertAttribute("role")
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
 	return role, nil
-}
-
-func (c ChaincodeFunctions) GetCompany() ([]byte, error) {
-    company, err := c.stub.ReadCertAttribute("company")
-    if err != nil { return nil, errors.New("Couldn't get attribute 'company'. Error: " + err.Error()) }
-	return company, nil
-}
-
-func (c ChaincodeFunctions) GetIssuer() ([]byte, error) {
-	dealIssuer, _ := c.stub.GetState("issuer")
-	return dealIssuer, nil
-}
-
-func (c ChaincodeFunctions) GetBanks() ([]byte, error) {
-	banks, _ := c.stub.GetState("banks")
-	return banks, nil
-}
-
-func (c ChaincodeFunctions) GetDealStatus() ([]byte, error) {
-	dealStatus, _ := c.stub.GetState("dealStatus")
-	return dealStatus, nil
-}
+}*/
 
 func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error)  {
-	_ = c.stub.PutState("dealStatus", []byte(dealStatus))
+	dealConfig := c.getDealConfigFromBlockchain()
+	dealConfig.BookStatus = dealStatus
+	c.saveDealConfigToBlockchain(dealConfig)
 	c.stub.SetEvent("Book Status Change", []byte("{\"status\":\"" + dealStatus + "\"}"))
 	return nil, nil
 }
 
 func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, error)  {
-	dealStatus, _ := c.GetDealStatus()
-	if(string(dealStatus) != "open") {
+	dealConfig := c.getDealConfigFromBlockchain()
+	if(dealConfig.BookStatus != "open") {
 		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"book is not open\"}"))
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
 	}
@@ -166,12 +137,24 @@ func (c ChaincodeFunctions) AllocateOrder(investor string, alloc float64) ([]byt
 	return nil, nil
 }
 
-func (c ChaincodeFunctions) Echo(address string, f string, arg string) ([]byte, error) {
+/*func (c ChaincodeFunctions) Echo(address string, f string, arg string) ([]byte, error) {
 	invokeArgs := util.ToChaincodeArgs(f, arg)
 	return c.stub.QueryChaincode(address, invokeArgs)
-}
+}*/
 
 // Private Functions
+
+func (c ChaincodeFunctions) getDealConfigFromBlockchain() DealConfig {
+	dealConfigJson, _ := c.stub.GetState("dealConfig")
+	var dealConfig DealConfig
+	_ = json.Unmarshal(dealConfigJson, &dealConfig)
+	return dealConfig
+}
+
+func (c ChaincodeFunctions) saveDealConfigToBlockchain(dealConfig DealConfig) {
+	dealConfigJson, _ := json.Marshal(dealConfig)
+	_ = c.stub.PutState("dealConfig", []byte(dealConfigJson))
+}
 
 func (c ChaincodeFunctions) getOrderAsJsonFromBlockchain(investor string) string {
 	order := c.getOrderFromBlockChain(investor)
