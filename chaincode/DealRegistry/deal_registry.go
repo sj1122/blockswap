@@ -76,7 +76,7 @@ func (c ChaincodeFunctions) RegisterDeal(deploymentId string, issuer string) ([]
 func (c ChaincodeFunctions) GetDeals() ([]byte, error) {
 	company, _ := c.stub.ReadCertAttribute("company")
 	deals := c.getDealsFromBlockchain()
-	var ret []Deal // == nil
+	ret := make([]Deal, 0)
     for _, deal := range deals {
     	dealConfig := c.getDealConfig(deal.DeploymentId)
         if stringInSlice(string(company), dealConfig.Banks) {
