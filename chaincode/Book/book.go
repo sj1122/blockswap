@@ -70,7 +70,9 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 	} else if function == "getCompany" {
 		return fns.GetCompany()
 	} else if function == "getIssuer" {
-		return fns.getIssuer()
+		return fns.GetIssuer()
+	} else if function == "getBanks" {
+		return fns.GetBanks()
 	} else if function == "getOrder" {
 		investor := args[0]
 		return fns.GetOrder(investor)
@@ -113,9 +115,14 @@ func (c ChaincodeFunctions) GetCompany() ([]byte, error) {
 	return company, nil
 }
 
-func (c ChaincodeFunctions) getIssuer() ([]byte, error) {
+func (c ChaincodeFunctions) GetIssuer() ([]byte, error) {
 	dealIssuer, _ := c.stub.GetState("issuer")
 	return dealIssuer, nil
+}
+
+func (c ChaincodeFunctions) GetBanks() ([]byte, error) {
+	banks, _ := c.stub.GetState("banks")
+	return banks, nil
 }
 
 func (c ChaincodeFunctions) GetDealStatus() ([]byte, error) {
