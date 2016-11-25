@@ -31,8 +31,7 @@ func (t Chaincode) Invoke(stub shim.ChaincodeStubInterface, function string, arg
 	fns := ChaincodeFunctions{stub}
 	if function == "registerDeal" {
 		deploymentId := args[0]
-		issuer := args[1]
-		return fns.RegisterDeal(deploymentId, issuer)
+		return fns.RegisterDeal(deploymentId)
 	}
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
@@ -49,15 +48,11 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 }
 
 type DealConfig struct {
-	Issuer 		string 		`json:"issuer"`
-	Banks 		[]string 	`json:"banks"`
-	BookStatus 	string 		`json:"bookStatus"`
-	Price 		float64 	`json:"price"`
-}
-
-type Deal struct {
-	DeploymentId 	string 	`json:"deploymentId"`
-	Issuer			string 	`json:"issuer"`
+	DeploymentId 	string 		`json:"deploymentId"`
+	Issuer 			string 		`json:"issuer"`
+	Banks 			[]string 	`json:"banks"`
+	BookStatus 		string 		`json:"bookStatus"`
+	Price 			float64 	`json:"price"`
 }
 
 // Public Functions
@@ -66,9 +61,8 @@ func (c ChaincodeFunctions) Ping() ([]byte, error) {
     return []byte("pong"), nil
 }
 
-func (c ChaincodeFunctions) RegisterDeal(deploymentId string, issuer string) ([]byte, error)  {
-	deal := Deal{DeploymentId: deploymentId, Issuer: issuer}
-	c.saveDealToBlockChain(deal)
+func (c ChaincodeFunctions) RegisterDeal(deploymentId string) ([]byte, error)  {
+	c.saveDealToBlockChain(deploymentId)
 	c.stub.SetEvent("New Deal Registered", []byte("{\"deploymentId\":\"" + deploymentId + "\"}"))
 	return nil, nil
 }
@@ -76,11 +70,11 @@ func (c ChaincodeFunctions) RegisterDeal(deploymentId string, issuer string) ([]
 func (c ChaincodeFunctions) GetDeals() ([]byte, error) {
 	company, _ := c.stub.ReadCertAttribute("company")
 	deals := c.getDealsFromBlockchain()
-	ret := make([]Deal, 0)
+	ret := make([]DealConfig, 0)
     for _, deal := range deals {
-    	dealConfig := c.getDealConfig(deal.DeploymentId)
+    	dealConfig := c.getDealConfig(deal)
         if stringInSlice(string(company), dealConfig.Banks) {
-        	ret = append(ret, deal)
+        	ret = append(ret, dealConfig)
         }
     }
     dealsJson, _ := json.Marshal(ret)
@@ -89,16 +83,16 @@ func (c ChaincodeFunctions) GetDeals() ([]byte, error) {
 
 // Private Functions
 
-func (c ChaincodeFunctions) saveDealToBlockChain(deal Deal) {
+func (c ChaincodeFunctions) saveDealToBlockChain(deploymentId string) {
 	deals := c.getDealsFromBlockchain()
-	deals = append(deals, deal)
+	deals = append(deals, deploymentId)
 	dealRegistryJson, _ := json.Marshal(deals)
 	_ = c.stub.PutState("deals", []byte(dealRegistryJson))
 }
 
-func (c ChaincodeFunctions) getDealsFromBlockchain() []Deal {
+func (c ChaincodeFunctions) getDealsFromBlockchain() []string {
 	dealsJson, _ := c.stub.GetState("deals")
-	var deals []Deal
+	var deals []string
 	_ = json.Unmarshal(dealsJson, &deals)
 	return deals
 }
@@ -108,6 +102,7 @@ func (c ChaincodeFunctions) getDealConfig(address string) DealConfig {
 	dealConfigJson, _ := c.stub.QueryChaincode(address, invokeArgs)
 	var dealConfig DealConfig
 	_ = json.Unmarshal(dealConfigJson, &dealConfig)
+	dealConfig.DeploymentId = address
 	return dealConfig
 }
 
