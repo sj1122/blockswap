@@ -64,6 +64,8 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 	if function == "ping" {
 		return fns.Ping()
 	} else if function == "getOrder" {
+		return fns.GetDealConfig()
+	} else if function == "getOrder" {
 		investor := args[0]
 		return fns.GetOrder(investor)
 	} else if function == "getOrderbook" {
@@ -98,6 +100,11 @@ func (c ChaincodeFunctions) Ping() ([]byte, error) {
     if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
 	return role, nil
 }*/
+
+func (c ChaincodeFunctions) GetDealConfig() ([]byte, error) {
+	dealConfig, _ := c.stub.GetState("dealConfig")
+	return dealConfig, nil
+}
 
 func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error)  {
 	dealConfig := c.getDealConfigFromBlockchain()
