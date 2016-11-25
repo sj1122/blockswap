@@ -1,11 +1,9 @@
-<div>Deployment ID: {{ registryDeploymentId }}</div>
 <div>
-	<button ng-click="deploy()">Deploy</button>
-</div>
-<div>
-	ID: <input type="text" ng-model="dealDeploymentId">
-	Issuer: <input type="text" ng-model="issuer">
-	<button ng-click="registerDeal()">Register Deal</button>
+	Issuer: <input type="text" ng-model="issuer"><br>
+	<select multiple ng-model="banks">
+		<option value="bofa">Bank of America</option>
+		<option value="jpm">JP Morgan</option>
+	</select><br>
 	<button ng-click="createDeal()">Create Deal</button>
 </div>
 <div>
@@ -14,10 +12,12 @@
 		<tr>
 			<td>Deal ID</td>
 			<td>Issuer</td>
+			<td ng-show="role == 'investor'">Order</td>
 		</tr>
 		<tr ng-repeat="deal in deals">
 			<td><a ng-href="#/book/{{deal.deploymentId}}">Book</td>
 			<td>{{ deal.issuer }}</td>
+			<td ng-show="role == 'investor'"><input type="number" ng-model="deal.myOrder" ng-blur="updateOrder(deal)"></td>
 		</tr>
 	</table>
 </div>

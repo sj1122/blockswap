@@ -1,5 +1,7 @@
 angular.module("blockswap", ["ngRoute"])
 
+.constant("HYPERLEDGER_ROLE", "investor")
+
 .config(function($routeProvider, $logProvider) {
 
 	$logProvider.debugEnabled(false);
@@ -14,6 +16,11 @@ angular.module("blockswap", ["ngRoute"])
 		.when("/book/:deploymentId", {
 			templateUrl: "templates/book.html",
 			controller: "BookController"
+		})
+
+		.when("/admin", {
+			templateUrl: "templates/admin.html",
+			controller: "AdminController"
 		})
 
 		.otherwise({

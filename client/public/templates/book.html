@@ -1,22 +1,14 @@
-<div>Deployment Id: {{ deploymentId }}</div>
-<div>Deployed: {{ deployed }}</div>
-<div>Role: {{ role }}, Company: {{ company }}, Issuer: {{ issuer }}</div>
-<div>Deal Status: {{ dealStatus }}</div>
 <div>
-	<button ng-click="createDeal()">Create Deal</button>
-	<button ng-click="getRole()">Get Role</button>
-	<button ng-click="getCompany()">Get Company</button>
-	<button ng-click="getIssuer()">Get Issuer</button>
-	<button ng-click="getDealStatus()">Get Deal Status</button>
-	<button ng-click="updateDealStatus()">Open Books</button>
+	<button ng-click="getDealConfig()">Get Deal Config</button>
 	<button ng-click="getOrderbook()">Get Order Book</button>
+	<select ng-disabled="role != 'bank'" ng-model="bookStatus" ng-change="updateDealStatus()">
+		<option value="draft">Draft</option>
+		<option value="open">Open</option>
+		<option value="closed">Closed</option>
+		<option value="allocated">Allocated</option>
+		<option value="settled">Settled</option>
+	</select>
 </div>
-<div>
-	Investor: <input type="text" ng-model="newOrder.investor">
-	Amount: <input type="number" ng-model="newOrder.amount">
-	<button ng-click="addOrder()">Add Order</button>
-</div>
-<div>Orderbook: {{ orderbook }}</div>
 <div>
 	<table border="1">
 		<tr>
@@ -27,8 +19,10 @@
 		<tr ng-repeat="(investor, order) in orderbook">
 			<td>{{ order.investor }}</td>
 			<td>{{ order.ioi }}</td>
-			<td><input type="number" ng-model="order.alloc" ng-blur="allocateOrder(order)"></td>
+			<td><input type="number" ng-disabled="role != 'bank'" ng-model="order.alloc" ng-blur="allocateOrder(order)"></td>
 		</tr>
 	</table>
 </div>
-<div>Events: {{ events }}</div>
+<div>
+	{{ dealConfig }}
+</div>

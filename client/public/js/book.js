@@ -2,92 +2,75 @@ angular.module("blockswap")
 
 .constant("BOOK_GITHUB_LOCATION", "https://github.com/habond/blockswap/chaincode/Book")
 
-.factory("BookService", function($rootScope, ChaincodeService, BOOK_GITHUB_LOCATION){
+.factory("BookService", function(ChaincodeService, BOOK_GITHUB_LOCATION){
 
-	return {
-
-		"createDeal": function() {
-			var nonce = Math.random().toString();
-			return ChaincodeService.deploy(BOOK_GITHUB_LOCATION, "init", [nonce]);
-		},
-
-		"getRole": function() {
-			return ChaincodeService.query($rootScope.dealDeploymentId, "getRole", []);
-		},
-
-		"getCompany": function() {
-			return ChaincodeService.query($rootScope.dealDeploymentId, "getCompany", []);
-		},
-
-		"getIssuer": function() {
-			return ChaincodeService.query($rootScope.dealDeploymentId, "getIssuer", []);
-		},
-
-		"getDealStatus": function() {
-			return ChaincodeService.query($rootScope.dealDeploymentId, "getDealStatus", []);
-		},
+	var fns = {
 
 		"updateDealStatus": function(newStatus) {
-			return ChaincodeService.invoke($rootScope.dealDeploymentId, "updateDealStatus", [newStatus]);
+			return ChaincodeService.invoke(this.deploymentId, "updateDealStatus", [newStatus]);
 		},
 
 		"getOrderbook": function() {
-			return ChaincodeService.query($rootScope.dealDeploymentId, "getOrderbook", []);
+			return ChaincodeService.query(this.deploymentId, "getOrderbook", []);
 		},
 
 		"addOrder": function(investor, amount) {
-			return ChaincodeService.invoke($rootScope.dealDeploymentId, "addOrder", [investor, amount.toString()])
+			return ChaincodeService.invoke(this.deploymentId, "addOrder", [investor, amount.toString()])
+		},
+
+		"getOrder": function(investor) {
+			return ChaincodeService.query(this.deploymentId, "getOrder", [investor]);
 		},
 
 		"allocateOrder": function(investor, allocation) {
-			return ChaincodeService.invoke($rootScope.dealDeploymentId, "allocateOrder", [investor, allocation.toString()]);
+			return ChaincodeService.invoke(this.deploymentId, "allocateOrder", [investor, allocation.toString()]);
+		},
+
+		"getDealConfig": function() {
+			return ChaincodeService.query(this.deploymentId, "getDealConfig", []);
 		}
 
-	}
+	};
+
+	return {
+
+		"createDeal": function(issuer, banks, bookStatus, price) {
+			var nonce = Math.random().toString();
+			var config = angular.toJson({
+				"issuer": issuer,
+				"banks": banks,
+				"bookStatus": bookStatus,
+				"price": price
+			});
+			return ChaincodeService.deploy(BOOK_GITHUB_LOCATION, "init", [config, nonce])
+				.then(function(response){
+					var deploymentId = response.data.result.message
+					return angular.extend({'deploymentId': deploymentId}, fns);
+				});
+		},
+
+		"fromDeploymentId": function(deploymentId) {
+			return angular.extend({'deploymentId': deploymentId}, fns);
+		}
+
+	};
 
 })
 
-.controller("BookController", function($log, $rootScope, $scope, $routeParams, BookService){
+.controller("BookController", function($log, $scope, $routeParams, BookService){
 
-	init();
-	function init() {
-		$rootScope.dealDeploymentId = $routeParams.deploymentId;
-
-		$scope.events = [];
-		$scope.deploymentId = null;
-		$scope.dealStatus = null;
-
-		$scope.$on('blockchain event', function(e, d){
-			$scope.events.push(d);
-			handleEvent(d.id, d.event, d.data);
-		});
-
-	}
+	var book = null;
 
 	function handleEvent(txid, event, data) {
 		if(event == "Book Status Change") {
-			$scope.getDealStatus();
+			$scope.getDealConfig();
 		} else if(event == "Order Added") {
 			$scope.getOrderbook();
-		} else if(event == "Contract Deployed") {
-			if(data == $scope.deploymentId)
-				$scope.deployed = "Yes";
 		}
 	}
 
-	$scope.createDeal = function() {
-		$log.log("Creating Deal");
-		BookService.createDeal()
-			.then(function(response){
-				$scope.deploymentId = response.data.result.message;
-				$scope.deployed = "No";
-			}, function(errorResponse){
-
-			});
-	};
-
 	$scope.getRole = function() {
-		BookService.getRole()
+		book.getRole()
 			.then(function(response){
 				$scope.role = response.data.result.message;
 			}, function(){
@@ -95,35 +78,8 @@ angular.module("blockswap")
 			});
 	};
 
-	$scope.getCompany = function() {
-		BookService.getCompany()
-			.then(function(response){
-				$scope.company = response.data.result.message;
-			}, function(){
-
-			});
-	};
-
-	$scope.getIssuer = function() {
-		BookService.getIssuer()
-			.then(function(response){
-				$scope.issuer = response.data.result.message;
-			}, function(){
-
-			});
-	};
-
-	$scope.getDealStatus = function() {
-		BookService.getDealStatus()
-			.then(function(response){
-				$scope.dealStatus = response.data.result.message;
-			}, function(){
-
-			});
-	};
-
 	$scope.getOrderbook = function() {
-		BookService.getOrderbook()
+		book.getOrderbook()
 			.then(function(response){
 				$scope.orderbook = angular.fromJson(response.data.result.message);
 			}, function(){
@@ -132,15 +88,37 @@ angular.module("blockswap")
 	};
 
 	$scope.updateDealStatus = function() {
-		BookService.updateDealStatus("open");
+		book.updateDealStatus($scope.bookStatus);
 	};
 
 	$scope.addOrder = function() {
-		BookService.addOrder($scope.newOrder.investor, $scope.newOrder.amount);
+		book.addOrder($scope.newOrder.investor, $scope.newOrder.amount);
 	};
 
 	$scope.allocateOrder = function(order) {
-		BookService.allocateOrder(order.investor, order.alloc);
+		book.allocateOrder(order.investor, order.alloc);
+	}
+
+	$scope.getDealConfig = function() {
+		book.getDealConfig()
+			.then(function(response){
+				$scope.dealConfig = angular.fromJson(response.data.result.message);
+			});
+	}
+
+	init();
+	function init() {
+		book = BookService.fromDeploymentId($routeParams.deploymentId);
+
+		$scope.events = [];
+
+		$scope.$on('blockchain event', function(e, d){
+			$scope.events.push(d);
+			handleEvent(d.id, d.event, d.data);
+		});
+
+		$scope.getDealConfig();
+
 	}
 
 });

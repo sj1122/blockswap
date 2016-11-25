@@ -7,10 +7,23 @@
 	<script type="text/javascript" src="js/main.js"></script>
 	<script type="text/javascript" src="js/keystore.js"></script>
 	<script type="text/javascript" src="js/hyperledger.js"></script>
+	<script type="text/javascript" src="js/admin.js"></script>
+	<script type="text/javascript" src="js/menu.js"></script>
 	<script type="text/javascript" src="js/book.js"></script>
 	<script type="text/javascript" src="js/registry.js"></script>
 </head>
 <body>
+	<div ng-controller="MenuController">
+		<select ng-model="selectedUser" ng-change="userChanged()">
+			<option value="snapchat">Issuer: Snapchat</option>
+			<option value="bofa">Bank: Bank of America</option>
+			<option value="jpm">Bank: JP Morgan</option>
+			<option value="dtc">Clearing House: DTC</option>
+			<option value="fsa">Regulator: FSA</option>
+			<option value="brock">Investor: Blackrock</option>
+			<option value="fdlty">Investor: Fidelity</option>
+		</select>
+	</div>
 	<div ng-view></div>
 </body>
 </html>

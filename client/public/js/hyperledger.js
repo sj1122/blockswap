@@ -6,9 +6,7 @@ angular.module("blockswap")
 
 .constant("BLOCKSWAP_ATTRIBUTES", ["role", "company"])
 
-.constant("HYPERLEDGER_USER", "bofa")
-
-.factory("ChaincodeService", function($rootScope, $http, $q, $log, HYPERLEDGER_ENDPOINT_URL, HYPERLEDGER_USER, BLOCKSWAP_ATTRIBUTES){
+.factory("ChaincodeService", function($rootScope, $http, $q, $log, HYPERLEDGER_ENDPOINT_URL, BLOCKSWAP_ATTRIBUTES){
 
 	var chaincodeRequestId = 1;
 	var pendingDeployments = [];
@@ -53,6 +51,13 @@ angular.module("blockswap")
 			return $http.get(HYPERLEDGER_ENDPOINT_URL + "/chain/blocks/" + i);
 		},
 
+		"registrar": function(username, password) {
+			return $http.post(HYPERLEDGER_ENDPOINT_URL + "/registrar", {
+				"enrollId": username,
+				"enrollSecret": password
+			});
+		},
+
 		"deploy": function(url, fn, args) {
 			return $http.post(HYPERLEDGER_ENDPOINT_URL + "/chaincode", {
 				"jsonrpc": "2.0", 
@@ -66,7 +71,7 @@ angular.module("blockswap")
 				      "function": fn,
 				      "args": args
 				    },
-				    "secureContext": HYPERLEDGER_USER,
+				    "secureContext": $rootScope.username,
 				    "attributes": BLOCKSWAP_ATTRIBUTES
 				}, 
 				"id": (chaincodeRequestId++)
@@ -90,7 +95,7 @@ angular.module("blockswap")
 						"function": fn,
 						"args": args
 					},
-					"secureContext": HYPERLEDGER_USER,
+					"secureContext": $rootScope.username,
 				    "attributes": BLOCKSWAP_ATTRIBUTES
 				},
 				"id": (chaincodeRequestId++)
@@ -110,7 +115,7 @@ angular.module("blockswap")
 						"function": fn,
 						"args": args
 					},
-					"secureContext": HYPERLEDGER_USER,
+					"secureContext": $rootScope.username,
 				    "attributes": BLOCKSWAP_ATTRIBUTES
 				},
 				"id": (chaincodeRequestId++)
@@ -143,8 +148,6 @@ angular.module("blockswap")
 				currentBlock = response.data.height - 1;
 				$log.debug("Starting listener at block " + currentBlock);
 				schedule();
-			},function(errorResponse){
-				$log.error("Ohh noo!");
 			});
 	}
 
@@ -165,7 +168,7 @@ angular.module("blockswap")
 						processNewBlocks(currentBlock+1, newHighestBlock);
 					}
 				});
-				
+
 		}, HYPERLEDGER_POLLING_INTERVAL);
 	}
 
