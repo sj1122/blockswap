@@ -68,12 +68,15 @@ func (c ChaincodeFunctions) RegisterDeal(deploymentId string) ([]byte, error)  {
 }
 
 func (c ChaincodeFunctions) GetDeals() ([]byte, error) {
-	company, _ := c.stub.ReadCertAttribute("company")
+	companyBytes, _ := c.stub.ReadCertAttribute("company")
+	roleBytes, _ := c.stub.ReadCertAttribute("role")
+	company := string(companyBytes)
+	role := string(roleBytes)
 	deals := c.getDealsFromBlockchain()
 	ret := make([]DealConfig, 0)
     for _, deal := range deals {
     	dealConfig := c.getDealConfig(deal)
-        if stringInSlice(string(company), dealConfig.Banks) {
+        if permissionedForDeal(company, role, dealConfig) {
         	ret = append(ret, dealConfig)
         }
     }
@@ -104,6 +107,13 @@ func (c ChaincodeFunctions) getDealConfig(address string) DealConfig {
 	_ = json.Unmarshal(dealConfigJson, &dealConfig)
 	dealConfig.DeploymentId = address
 	return dealConfig
+}
+
+func permissionedForDeal(role string, company string, dealConfig DealConfig) bool {
+	if company == dealConfig.Issuer { return true }
+	if role == "bank" && stringInSlice(company, dealConfig.Banks) { return true }
+	if role == "investor" && dealConfig.BookStatus != "draft" { return true }
+	return false
 }
 
 func stringInSlice(a string, list []string) bool {
