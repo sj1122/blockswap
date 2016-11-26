@@ -35,7 +35,7 @@ angular.module("blockswap")
 
 })
 
-.controller("RegistryController", function($scope, $log, $q, RegistryService, BookService, KeyStoreService) {
+.controller("RegistryController", function($window, $scope, $log, $q, RegistryService, BookService, KeyStoreService) {
 
 	var registry = null;
 
@@ -70,7 +70,7 @@ angular.module("blockswap")
 				KeyStoreService.set("DealRegistry", response.deploymentId);
 				registry = RegistryService.fromDeploymentId(response.deploymentId);
 			});
-	};
+	}
 
 	$scope.getDeals = function() {
 		registry.getDeals()
@@ -85,7 +85,7 @@ angular.module("blockswap")
 						angular.forEach(results, function(response, i){
 							var order = angular.fromJson(response.data.result.message);
 							if(order.ioi > 0) {
-								deals[i].myOrder = order.ioi;
+								deals[i].myOrder = order;
 							}
 						});
 						$scope.deals = deals;
@@ -104,9 +104,21 @@ angular.module("blockswap")
 	$scope.updateOrder = function(deal) {
 		if(!deal.myOrder)
 			return;
-		$log.log("Updated Order for " + deal.issuer + " with value " + deal.myOrder);
+		$log.log("Updated Order for " + deal.issuer + " with value " + deal.myOrder.ioi);
 		var book = BookService.fromDeploymentId(deal.deploymentId);
-		book.addOrder($scope.username, deal.myOrder);
+		book.addOrder($scope.username, deal.myOrder.ioi);
+	};
+
+	$scope.confirmOrder = function(deal) {
+		if(!deal.myOrder)
+			return;
+		$log.log("Confirming Order for " + deal.issuer);
+		var book = BookService.fromDeploymentId(deal.deploymentId);
+		if($window.confirm("Are you sure you want to confirm your allocation of " + deal.myOrder.alloc)) {
+			book.confirmOrder($scope.username);
+		} else {
+			deal.myOrder.confirmed = false;
+		}
 	}
 
 });

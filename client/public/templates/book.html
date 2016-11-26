@@ -1,7 +1,7 @@
 <div>
 	<button ng-click="getDealConfig()">Get Deal Config</button>
 	<button ng-click="getOrderbook()">Get Order Book</button>
-	<select ng-disabled="role != 'bank'" ng-model="bookStatus" ng-change="updateDealStatus()">
+	<select ng-disabled="role != 'bank'" ng-model="dealConfig.bookStatus" ng-change="updateDealStatus()">
 		<option value="draft">Draft</option>
 		<option value="open">Open</option>
 		<option value="closed">Closed</option>
@@ -15,11 +15,17 @@
 			<td>Investor</td>
 			<td>Amount</td>
 			<td>Allocation</td>
+			<td>Confirmed</td>
 		</tr>
 		<tr ng-repeat="(investor, order) in orderbook">
 			<td>{{ order.investor }}</td>
 			<td>{{ order.ioi }}</td>
 			<td><input type="number" ng-disabled="role != 'bank'" ng-model="order.alloc" ng-blur="allocateOrder(order)"></td>
+			<td>
+				<input type="checkbox"
+					   ng-model="order.confirmed"
+					   disabled>
+			</td>
 		</tr>
 	</table>
 </div>

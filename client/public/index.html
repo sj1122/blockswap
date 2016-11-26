@@ -14,16 +14,41 @@
 </head>
 <body>
 	<div ng-controller="MenuController">
+		<a href="#/admin">Admin</a>
+		<a href="#/registry">Registry</a>
 		<select ng-model="selectedUser" ng-change="userChanged()">
 			<option value="snapchat">Issuer: Snapchat</option>
+			<option value="abnb">Issuer: Airbnb</option>
+			<option value="ptir">Issuer: Palantir</option>
+			<option value="uber">Issuer: Uber</option>
 			<option value="bofa">Bank: Bank of America</option>
 			<option value="jpm">Bank: JP Morgan</option>
-			<option value="dtc">Clearing House: DTC</option>
-			<option value="fsa">Regulator: FSA</option>
+			<option value="gs">Bank: Goldman Sachs</option>
 			<option value="brock">Investor: Blackrock</option>
 			<option value="fdlty">Investor: Fidelity</option>
+			<option value="vang">Investor: Vanguard</option>
+			<option value="pimco">Investor: Pimco</option>
+			<option value="amundi">Investor: Amundi</option>
+			<option value="dtc">Clearing House: DTC</option>
+			<option value="fsa">Regulator: FSA</option>
 		</select>
 	</div>
 	<div ng-view></div>
+	<br>
+	<br>
+	<div ng-controller="FooterController">
+		<table border="1">
+			<tr>
+				<td>ID</td>
+				<td>Event</td>
+				<td>Data</td>
+			</tr>
+			<tr ng-repeat="event in events">
+				<td>{{ event.id }}</td>
+				<td>{{ event.event }}</td>
+				<td>{{ event.data }}</td>
+			</tr>
+		</table>
+	</div>
 </body>
 </html>

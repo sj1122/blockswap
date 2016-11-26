@@ -1,23 +1,42 @@
 <div>
-	Issuer: <input type="text" ng-model="issuer"><br>
+	<!--Issuer: <input type="text" ng-model="issuer"><br>-->
 	<select multiple ng-model="banks">
 		<option value="bofa">Bank of America</option>
 		<option value="jpm">JP Morgan</option>
-	</select><br>
-	<button ng-click="createDeal()">Create Deal</button>
+		<option value="gs">Goldman Sachs</option>
+	</select>
+	<br>
+	<button ng-disabled="role != 'issuer'" ng-click="createDeal()">Create Deal</button>
 </div>
 <div>
 	<button ng-click="getDeals()">Get Deals</button>
 	<table border="1">
 		<tr>
-			<td>Deal ID</td>
+			<td ng-show="role != 'investor'">Orderbook</td>
 			<td>Issuer</td>
 			<td ng-show="role == 'investor'">Order</td>
+			<td ng-show="role == 'investor'">Allocation</td>
+			<td ng-show="role == 'investor'">Confirmed</td>
 		</tr>
 		<tr ng-repeat="deal in deals">
-			<td><a ng-href="#/book/{{deal.deploymentId}}">Book</td>
-			<td>{{ deal.issuer }}</td>
-			<td ng-show="role == 'investor'"><input type="number" ng-model="deal.myOrder" ng-blur="updateOrder(deal)"></td>
+			<td ng-show="role != 'investor'">
+				<a ng-href="#/book/{{deal.deploymentId}}">Book</a>
+			</td>
+			<td>
+				{{ userMap[deal.issuer].name }}
+			</td>
+			<td ng-show="role == 'investor'">
+				<input type="number" ng-model="deal.myOrder.ioi" ng-blur="updateOrder(deal)">
+			</td>
+			<td ng-show="role == 'investor'">
+				{{ deal.myOrder.alloc }}
+			</td>
+			<td ng-show="role == 'investor'">
+				<input type="checkbox"
+					   ng-model="deal.myOrder.confirmed" 
+					   ng-change="confirmOrder(deal)" 
+					   ng-disabled="deal.myOrder.confirmed">
+			</td>
 		</tr>
 	</table>
 </div>

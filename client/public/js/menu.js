@@ -3,38 +3,87 @@ angular.module("blockswap")
 .constant("USER_MAP", {
 
 	"snapchat": {
+		"name": "SnapChat Inc.",
 		"role": "issuer",
 		"password": "snappwd"
 	},
 
 	"bofa": {
+		"name": "Bank of America",
 		"role": "bank", 
 		"password": "bamlpwd"
 	},
 
 	"jpm": {
+		"name": "JP Morgan Chase",
 		"role": "bank", 
 		"password": "jppwd"
 	},
 
+	"gs": {
+		"name": "Goldman Sachs",
+		"role": "bank",
+		"password": "gspwd"
+	},
+
 	"dtc": {
+		"name": "DTC",
 		"role": "clearing_house", 
 		"password": "dtcpwd"
 	},
 
 	"fsa": {
+		"name": "FSA",
 		"role": "regulator", 
 		"password": "fsapwd"
 	},
 
 	"brock": {
+		"name": "Black Rock",
 		"role": "investor", 
 		"password": "brpwd"
 	},
 
 	"fdlty": {
+		"name": "Fidelity",
 		"role": "investor", 
 		"password": "ftypwd"
+	},
+
+	"abnb": {
+		"name": "Airbnb",
+		"role": "issuer", 
+		"password": "abpwd"
+	},
+
+	"ptir": {
+		"name": "Palantir",
+		"role": "issuer", 
+		"password": "ptripwd"
+	},
+
+	"uber": {
+		"name": "Uber",
+		"role": "issuer", 
+		"password": "uberpwd"
+	},
+
+	"vang": {
+		"name": "Vanguard",
+		"role": "investor", 
+		"password": "vangpwd"
+	},
+
+	"pimco": {
+		"name": "Pimco",
+		"role": "investor", 
+		"password": "pimpwd"
+	},
+
+	"amundi": {
+		"name": "Amundi",
+		"role": "investor", 
+		"password": "amunpwd"
 	}
 
 })
@@ -52,6 +101,8 @@ angular.module("blockswap")
 			$scope.selectedUser = username;
 		});
 
+	$rootScope.userMap = USER_MAP;
+
 	$scope.userChanged = function() {
 		var username = $scope.selectedUser;
 		var properties = USER_MAP[username];
@@ -67,5 +118,16 @@ angular.module("blockswap")
 			});
 	};
 
+
+})
+
+.controller("FooterController", function($scope, $log){
+
+	$scope.events = [];
+
+	$scope.$on('blockchain event', function(evt, data){
+		$log.log(data);
+		$scope.events.push(data);
+	});
 
 });

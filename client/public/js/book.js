@@ -28,6 +28,10 @@ angular.module("blockswap")
 
 		"getDealConfig": function() {
 			return ChaincodeService.query(this.deploymentId, "getDealConfig", []);
+		},
+
+		"confirmOrder": function(investor) {
+			return ChaincodeService.invoke(this.deploymentId, "confirmOrder", [investor])
 		}
 
 	};
@@ -88,7 +92,7 @@ angular.module("blockswap")
 	};
 
 	$scope.updateDealStatus = function() {
-		book.updateDealStatus($scope.bookStatus);
+		book.updateDealStatus($scope.dealConfig.bookStatus);
 	};
 
 	$scope.addOrder = function() {
@@ -110,14 +114,8 @@ angular.module("blockswap")
 	function init() {
 		book = BookService.fromDeploymentId($routeParams.deploymentId);
 
-		$scope.events = [];
-
-		$scope.$on('blockchain event', function(e, d){
-			$scope.events.push(d);
-			handleEvent(d.id, d.event, d.data);
-		});
-
 		$scope.getDealConfig();
+		$scope.getOrderbook();
 
 	}
 
