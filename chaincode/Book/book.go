@@ -51,6 +51,9 @@ func (t Chaincode) Invoke(stub shim.ChaincodeStubInterface, function string, arg
 	} else if function == "updateDealStatus" {
 		status := args[0]
 		return fns.UpdateDealStatus(status)
+	} else if function == "confirmOrder" {
+		investor := args[0]
+		return fns.ConfirmOrder(investor)
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -86,6 +89,7 @@ type Order struct {
 	Investor	string 		`json:"investor"`
 	Ioi 		float64 	`json:"ioi"`
 	Alloc 		float64		`json:"alloc"`
+	Confirmed	bool		`json:"confirmed"`
 }
 
 // Public Functions
@@ -93,12 +97,6 @@ type Order struct {
 func (c ChaincodeFunctions) Ping() ([]byte, error) {
     return []byte("pong"), nil
 }
-
-/*func (c ChaincodeFunctions) GetRole() ([]byte, error) {
-    role, err := c.stub.ReadCertAttribute("role")
-    if err != nil { return nil, errors.New("Couldn't get attribute 'role'. Error: " + err.Error()) }
-	return role, nil
-}*/
 
 func (c ChaincodeFunctions) GetDealConfig() ([]byte, error) {
 	dealConfig, _ := c.stub.GetState("dealConfig")
@@ -115,13 +113,31 @@ func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error) 
 
 func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, error)  {
 	dealConfig := c.getDealConfigFromBlockchain()
-	if(dealConfig.BookStatus != "open") {
+	if dealConfig.BookStatus != "open" {
 		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"book is not open\"}"))
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
 	}
-	order := Order{Investor: investor, Ioi: ioi, Alloc: 0.0}
+	order := c.getOrderFromBlockChain(investor)
+	if order.Investor == "" {
+		order = Order{Investor: investor, Ioi: ioi, Alloc: 0.0, Confirmed: false}
+	} else {
+		order.Ioi = ioi
+	}
 	c.saveOrderToBlockChain(order)
 	c.stub.SetEvent("Order Added", []byte("{\"investor\":\"" + investor + "\"}"))
+	return nil, nil
+}
+
+func (c ChaincodeFunctions) ConfirmOrder(investor string) ([]byte, error) {
+	dealConfig := c.getDealConfigFromBlockchain()
+	if dealConfig.BookStatus != "allocated" {
+		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"book is not allocated\"}"))
+		return nil, nil
+	}
+	order := c.getOrderFromBlockChain(investor)
+	order.Confirmed = true
+	c.saveOrderToBlockChain(order)
+	c.stub.SetEvent("Order Confirmed", []byte("{\"investor\":\"" + investor + "\"}"))
 	return nil, nil
 }
 
@@ -142,11 +158,6 @@ func (c ChaincodeFunctions) AllocateOrder(investor string, alloc float64) ([]byt
 	c.stub.SetEvent("Order Allocated", []byte("{\"investor\":\"" + investor + "\"}"))
 	return nil, nil
 }
-
-/*func (c ChaincodeFunctions) Echo(address string, f string, arg string) ([]byte, error) {
-	invokeArgs := util.ToChaincodeArgs(f, arg)
-	return c.stub.QueryChaincode(address, invokeArgs)
-}*/
 
 // Private Functions
 
