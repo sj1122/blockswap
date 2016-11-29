@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html ng-app="blockswap">
 <head>
-	<title>Blockswap Bookbuilder</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+
 	<script type="text/javascript" src="bower_components/angular/angular.js"></script>
 	<script type="text/javascript" src="bower_components/angular-route/angular-route.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
@@ -11,6 +16,9 @@
 	<script type="text/javascript" src="js/menu.js"></script>
 	<script type="text/javascript" src="js/book.js"></script>
 	<script type="text/javascript" src="js/registry.js"></script>
+	<script type="text/javascript" src="js/docs.js"></script>
+
+	<title>Blockswap Bookbuilder</title>
 </head>
 <body>
 	<div ng-controller="MenuController">
@@ -30,7 +38,8 @@
 			<option value="pimco">Investor: Pimco</option>
 			<option value="amundi">Investor: Amundi</option>
 			<option value="dtc">Clearing House: DTC</option>
-			<option value="fsa">Regulator: FSA</option>
+			<option value="sec">Regulator: SEC</option>
+			<option value="finra">Regulator: FINRA</option>
 		</select>
 	</div>
 	<div ng-view></div>

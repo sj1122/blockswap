@@ -32,10 +32,10 @@ angular.module("blockswap")
 		"password": "dtcpwd"
 	},
 
-	"fsa": {
-		"name": "FSA",
+	"sec": {
+		"name": "SEC",
 		"role": "regulator", 
-		"password": "fsapwd"
+		"password": "secpwd"
 	},
 
 	"brock": {
@@ -84,6 +84,12 @@ angular.module("blockswap")
 		"name": "Amundi",
 		"role": "investor", 
 		"password": "amunpwd"
+	},
+
+	"finra": {
+		"name": "FINRA",
+		"role": "regulator", 
+		"password": "finpwd"
 	}
 
 })

@@ -107,6 +107,8 @@ func (c ChaincodeFunctions) GetDealConfig() ([]byte, error) {
 
 func (c ChaincodeFunctions) UpdateDealStatus(dealStatus string) ([]byte, error)  {
 	dealConfig := c.getDealConfigFromBlockchain()
+	roleBytes, _ := c.stub.ReadCertAttribute("role")
+	role := string(roleBytes)
 	dealConfig.BookStatus = dealStatus
 	c.saveDealConfigToBlockchain(dealConfig)
 	c.stub.SetEvent("Book Status Change", []byte("{\"status\":\"" + dealStatus + "\"}"))

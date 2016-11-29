@@ -38,18 +38,19 @@ angular.module("blockswap")
 
 	return {
 
-		"createDeal": function(issuer, banks, bookStatus, price) {
+		"createDeal": function(issuer, banks, bookStatus, docRegAddress, requireQib) {
 			var nonce = Math.random().toString();
 			var config = angular.toJson({
 				"issuer": issuer,
 				"banks": banks,
 				"bookStatus": bookStatus,
-				"price": price
+				"docRegAddress": docRegAddress,
+				"requireQib": requireQib
 			});
 			return ChaincodeService.deploy(BOOK_GITHUB_LOCATION, "init", [config, nonce])
 				.then(function(response){
 					var deploymentId = response.data.result.message
-					return angular.extend({'deploymentId': deploymentId}, fns);
+					return angular.extend({ 'deploymentId': deploymentId }, fns);
 				});
 		},
 
@@ -61,17 +62,27 @@ angular.module("blockswap")
 
 })
 
-.controller("BookController", function($log, $scope, $routeParams, BookService){
+.controller("BookController", function($log, $scope, $location, $routeParams, BookService){
 
 	var book = null;
 
-	function handleEvent(txid, event, data) {
-		if(event == "Book Status Change") {
+	$scope.$on('blockchain event', function(e, d){
+		if(d.event == "Book Status Change") {
 			$scope.getDealConfig();
-		} else if(event == "Order Added") {
+		} else if(d.event == "Order Added") {
+			$scope.getOrderbook();
+		} else if(d.event == "Order Confirmed") {
 			$scope.getOrderbook();
 		}
-	}
+	});
+
+	$scope.$on("user changed", function(e, data){
+		if($scope.role == "investor") {
+			$log.log("Investors cannot use book view");
+			$location.path('/registry');
+		}
+
+	});
 
 	$scope.getRole = function() {
 		book.getRole()

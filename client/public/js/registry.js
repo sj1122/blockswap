@@ -35,9 +35,10 @@ angular.module("blockswap")
 
 })
 
-.controller("RegistryController", function($window, $scope, $log, $q, RegistryService, BookService, KeyStoreService) {
+.controller("RegistryController", function($window, $scope, $log, $q, RegistryService, BookService, DocService, KeyStoreService) {
 
 	var registry = null;
+	var docRegistry = null;
 
 	KeyStoreService.get("DealRegistry")
 		.then(function(response){
@@ -48,20 +49,35 @@ angular.module("blockswap")
 			}
 		});
 
+	KeyStoreService.get("DocRegistry")
+		.then(function(response){
+			var deploymentId = response.data;
+			docRegistry = DocService.fromDeploymentId(deploymentId);
+			docRegistry.getDocsFor($scope.username)
+				.then(function(response){
+					$scope.myDocs = angular.fromJson(response.data.result.message);
+				});
+		});
+
 	$scope.$on("user changed", function(e, data){
-		if(registry)
+		if(registry) {
 			$scope.getDeals();
+		}
+		if(docRegistry) {
+			docRegistry.getDocsFor($scope.username)
+				.then(function(response){
+					$scope.myDocs = angular.fromJson(response.data.result.message);
+				});
+		}
 	});
 
 	$scope.$on('blockchain event', function(e, d){
-		handleEvent(d.id, d.event, d.data);
-	});
-
-	function handleEvent(id, event, data) {
-		if(event == "New Deal Registered") {
+		if(d.event == "New Deal Registered") {
+			$scope.getDeals();
+		} else if(d.event == "Order Allocated") {
 			$scope.getDeals();
 		}
-	}
+	});
 
 	$scope.deploy = function() {
 		$log.log("Deploying Deal Registry");
@@ -87,6 +103,9 @@ angular.module("blockswap")
 							if(order.ioi > 0) {
 								deals[i].myOrder = order;
 							}
+							if(order.alloc == -1) {
+								order.alloc = undefined;
+							}
 						});
 						$scope.deals = deals;
 					});
@@ -94,8 +113,12 @@ angular.module("blockswap")
 	};
 
 	$scope.createDeal = function(){
+		if(!$scope.banks || $scope.banks.length == 0) {
+			alert("You must select at least 1 syndicate bank");
+			return;
+		}
 		$log.log("Creating Deal");
-		BookService.createDeal($scope.username, $scope.banks, "draft", 0.0)
+		BookService.createDeal($scope.username, $scope.banks, "draft", docRegistry.deploymentId, true)
 			.then(function(book){
 				registry.registerDeal(book.deploymentId, $scope.issuer);
 			});
@@ -119,6 +142,10 @@ angular.module("blockswap")
 		} else {
 			deal.myOrder.confirmed = false;
 		}
+	};
+
+	$scope.declareQib = function() {
+		docRegistry.declareDoc("qib");
 	}
 
 });

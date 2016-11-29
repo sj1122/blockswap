@@ -6,6 +6,7 @@
 		<option value="open">Open</option>
 		<option value="closed">Closed</option>
 		<option value="allocated">Allocated</option>
+		<option value="confirmed">Confirmed</option>
 		<option value="settled">Settled</option>
 	</select>
 </div>
@@ -18,7 +19,7 @@
 			<td>Confirmed</td>
 		</tr>
 		<tr ng-repeat="(investor, order) in orderbook">
-			<td>{{ order.investor }}</td>
+			<td>{{ userMap[order.investor].name }}</td>
 			<td>{{ order.ioi }}</td>
 			<td><input type="number" ng-disabled="role != 'bank'" ng-model="order.alloc" ng-blur="allocateOrder(order)"></td>
 			<td>
