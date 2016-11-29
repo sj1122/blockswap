@@ -209,7 +209,7 @@ func (c ChaincodeFunctions) saveOrderbookToBlockChain(orderbook map[string]Order
 }
 
 func (c ChaincodeFunctions) checkInvestorQib(address string, company string) bool {
-	invokeArgs := util.ToChaincodeArgs("getDocsFor", company)
+	invokeArgs := util.ToChaincodeArgs("getDocs", company)
 	docsJson, _ := c.stub.QueryChaincode(address, invokeArgs)
 	var docs []string
 	_ = json.Unmarshal(docsJson, &docs)
