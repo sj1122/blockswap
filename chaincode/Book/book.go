@@ -121,6 +121,7 @@ func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, erro
 	}
 	if dealConfig.RequireQib && !c.checkInvestorQib(dealConfig.DocRegAddress, investor) {
 		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":" + investor + "\" is not a QIB\"}"))
+		return nil, errors.New("Order's cannot be placed without QIB status")
 	}
 	order := c.getOrderFromBlockChain(investor)
 	if order.Investor == "" {
