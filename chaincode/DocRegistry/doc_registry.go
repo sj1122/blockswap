@@ -68,8 +68,9 @@ func (c ChaincodeFunctions) DeclareDoc(docType string) ([]byte, error)  {
 }
 
 func (c ChaincodeFunctions) GetDocsFor(company string) ([]byte, error) {
-	docs, _:= c.stub.GetState(company)
-	return docs, nil
+	docs := c.getDocsFromBlockChain(company)
+	docsJson, _ := json.Marshal(docs)
+	return docsJson, nil
 }
 
 // Private Functions
