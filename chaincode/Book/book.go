@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"encoding/json"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/core/util"
 )
 
 type Chaincode struct { }
@@ -82,7 +83,8 @@ type DealConfig struct {
 	Issuer 		string 		`json:"issuer"`
 	Banks 		[]string 	`json:"banks"`
 	BookStatus 	string 		`json:"bookStatus"`
-	Price 		float64 	`json:"price"`
+	RequireQib	bool		`json:"requireQib"`
+	DocRegAddress string 	`json:"docRegAddress"`
 }
 
 type Order struct {
@@ -116,6 +118,9 @@ func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, erro
 	if dealConfig.BookStatus != "open" {
 		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"book is not open\"}"))
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
+	}
+	if dealConfig.RequireQib && !c.checkInvestorQib(dealConfig.DocRegAddress, investor) {
+		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":" + investor + "\" is not a QIB\"}"))
 	}
 	order := c.getOrderFromBlockChain(investor)
 	if order.Investor == "" {
@@ -200,4 +205,21 @@ func (c ChaincodeFunctions) getOrderbookFromBlockChain() map[string]Order {
 func (c ChaincodeFunctions) saveOrderbookToBlockChain(orderbook map[string]Order) {
 	orderbookJson, _ := json.Marshal(orderbook)
 	_ = c.stub.PutState("orderbook", []byte(orderbookJson))
+}
+
+func (c ChaincodeFunctions) checkInvestorQib(address string, company string) bool {
+	invokeArgs := util.ToChaincodeArgs("getDocsFor", company)
+	docsJson, _ := c.stub.QueryChaincode(address, invokeArgs)
+	var docs []string
+	_ = json.Unmarshal(docsJson, &docs)
+	return stringInSlice("qib", docs)
+}
+
+func stringInSlice(a string, list []string) bool {
+    for _, b := range list {
+        if b == a {
+            return true
+        }
+    }
+    return false
 }
