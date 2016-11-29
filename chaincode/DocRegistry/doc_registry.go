@@ -77,6 +77,9 @@ func (c ChaincodeFunctions) GetDocsFor(company string) ([]byte, error) {
 
 func (c ChaincodeFunctions) getDocsFromBlockChain(company string) []string {
 	docsJson, _ := c.stub.GetState(company)
+	if docsJson == nil {
+		return make([]string, 0)
+	}
 	var docs []string
 	_ = json.Unmarshal(docsJson, &docs)
 	return docs
