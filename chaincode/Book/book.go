@@ -120,7 +120,7 @@ func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, erro
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
 	}
 	if dealConfig.RequireQib && !c.checkInvestorQib(dealConfig.DocRegAddress, investor) {
-		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":" + investor + "\" is not a QIB\"}"))
+		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"" + investor + " is not a QIB\"}"))
 		return nil, errors.New("Order's cannot be placed without QIB status")
 	}
 	order := c.getOrderFromBlockChain(investor)
@@ -148,7 +148,14 @@ func (c ChaincodeFunctions) ConfirmOrder(investor string) ([]byte, error) {
 }
 
 func (c ChaincodeFunctions) GetOrder(investor string) ([]byte, error) {
-	orderJson := c.getOrderAsJsonFromBlockchain(investor)
+	roleBytes, _ := c.stub.ReadCertAttribute("role")
+	role := string(roleBytes)
+	dealConfig := c.getDealConfigFromBlockchain()
+	order := c.getOrderFromBlockChain(investor)	
+	if !canSeeAllocations(role, dealConfig) {
+		order.Alloc = -1
+	}
+	orderJson, _ := json.Marshal(order)
 	return []byte(orderJson), nil
 }
 
@@ -223,4 +230,18 @@ func stringInSlice(a string, list []string) bool {
         }
     }
     return false
+}
+
+func canSeeAllocations(role string, dealConfig DealConfig) bool {
+	if role != "investor" {
+		return true
+	} else if dealConfig.BookStatus == "draft" {
+		return false
+	} else if dealConfig.BookStatus == "open" {
+		return false
+	} else if dealConfig.BookStatus == "closed" {
+		return false
+	} else {
+		return true
+	}
 }
