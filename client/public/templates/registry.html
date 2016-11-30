@@ -1,22 +1,42 @@
-<div>
-	<select multiple ng-model="banks">
-		<option value="bofa">Bank of America</option>
-		<option value="jpm">JP Morgan</option>
-		<option value="gs">Goldman Sachs</option>
-	</select>
-	<br>
-	<button ng-hide="role != 'issuer'" ng-click="createDeal()">Create Deal</button>
+<div ng-if="userMap[username].role == 'issuer'" class="panel-group">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a style="cursor: pointer;" data-toggle="collapse" data-target="#collapse1">New Deal</a>
+			</h4>
+		</div>
+		<div id="collapse1" class="panel-collapse collapse">
+			<div class="panel-body">
+				<form>
+					<div class="form-group">
+						<label>Issuer:</label>
+						<input value="{{userMap[username].name}}" type="text" class="form-control" disabled>
+					</div>
+					<div class="form-group">
+						<select class="form-control" multiple ng-model="banks">
+							<option value="bofa">Bank of America</option>
+							<option value="jpm">JP Morgan</option>
+							<option value="gs">Goldman Sachs</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<button class="btn btn-primary" ng-hide="role != 'issuer'" ng-click="createDeal()">Create Deal</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </div>
 <div>
-	<table class="table">
+	<table class="table table-bordered" ng-if="deals.length > 0">
 		<thead class="thead">
 			<tr>
-				<td ng-show="role != 'investor'">Orderbook</td>
-				<td>Book Status</td>
-				<td>Issuer</td>
-				<td ng-show="role == 'investor'">Order</td>
-				<td ng-show="role == 'investor'">Allocation</td>
-				<td ng-show="role == 'investor'">Confirmed</td>
+				<th ng-show="role != 'investor'">Orderbook</th>
+				<th>Book Status</th>
+				<th>Issuer</th>
+				<th ng-show="role == 'investor'">Order</th>
+				<th ng-show="role == 'investor'">Allocation</th>
+				<th ng-show="role == 'investor'">Confirmed</th>
 			</tr>
 		</thead>
 		<tr ng-repeat="deal in deals">
@@ -33,7 +53,7 @@
 				<input type="number" ng-model="deal.myOrder.ioi" ng-blur="updateOrder(deal)">
 			</td>
 			<td ng-show="role == 'investor'">
-				{{ deal.myOrder.alloc }}
+			{{ deal.myOrder.alloc }}
 			</td>
 			<td ng-show="role == 'investor'">
 				<input type="checkbox"
@@ -45,5 +65,10 @@
 	</table>
 </div>
 <div>
-	<button ng-click="declareQib()" ng-disabled="myDocs.indexOf('qib') > -1">Declare QIB</button>
+	<button class="btn btn-primary" 
+			ng-click="declareQib()" 
+			ng-if="userMap[username].role == 'investor'" 
+			ng-disabled="myDocs.indexOf('qib') > -1">
+		Declare QIB
+	</button>
 </div>

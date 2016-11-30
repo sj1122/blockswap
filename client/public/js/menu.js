@@ -94,6 +94,8 @@ angular.module("blockswap")
 
 })
 
+.constant("ALERT_DURATION", 5000)
+
 .controller("MenuController", function($rootScope, $scope, $log, ChaincodeService, KeyStoreService, USER_MAP){
 
 	KeyStoreService.get("username")
@@ -127,13 +129,18 @@ angular.module("blockswap")
 
 })
 
-.controller("FooterController", function($scope, $log){
+.controller("AlertController", function($scope, $log, $timeout, ALERT_DURATION){
 
-	$scope.events = [];
+	$scope.display = false;
 
 	$scope.$on('blockchain event', function(evt, data){
 		$log.log(data);
-		$scope.events.push(data);
+		$scope.display = true;
+		$scope.message = data.event;
+		$timeout(function(){
+			$scope.display = false;
+			$scope.message = "";
+		}, ALERT_DURATION);
 	});
 
 });

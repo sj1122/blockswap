@@ -28,7 +28,6 @@ angular.module("blockswap")
 	}
 
 	function ProcessDeployedContract(deploymentId, response) {
-		$log.log("New Contract Deployed: " + deploymentId);
 		var message = response.data.result.message;
 		if(message == "pong") {
 			var i = pendingDeployments.indexOf(deploymentId);
