@@ -1,74 +1,98 @@
-<div ng-if="userMap[username].role == 'issuer'" class="panel-group">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h4 class="panel-title">
-				<a style="cursor: pointer;" data-toggle="collapse" data-target="#collapse1">New Deal</a>
-			</h4>
-		</div>
-		<div id="collapse1" class="panel-collapse collapse">
-			<div class="panel-body">
-				<form>
-					<div class="form-group">
-						<label>Issuer:</label>
-						<input value="{{userMap[username].name}}" type="text" class="form-control" disabled>
+<div class="row">
+	<div class="col-md-12">
+		<div ng-show="userMap[username].role == 'issuer'" class="panel-group">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a style="cursor: pointer;" data-toggle="collapse" data-target="#collapse1">New Deal</a>
+					</h4>
+				</div>
+				<div id="collapse1" class="panel-collapse collapse">
+					<div class="panel-body">
+						<form>
+							<div class="form-group">
+								<label>Issuer:</label>
+								<input value="{{userMap[username].name}}" 
+									   type="text" 
+									   class="form-control" 
+									   disabled>
+							</div>
+							<div class="form-group">
+								<select class="form-control" ng-model="banks" multiple>
+									<option value="bofa">Bank of America</option>
+									<option value="jpm">JP Morgan</option>
+									<option value="gs">Goldman Sachs</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<button class="btn btn-primary" 
+										ng-hide="role != 'issuer'" 
+										ng-click="createDeal()">Create Deal</button>
+							</div>
+						</form>
 					</div>
-					<div class="form-group">
-						<select class="form-control" multiple ng-model="banks">
-							<option value="bofa">Bank of America</option>
-							<option value="jpm">JP Morgan</option>
-							<option value="gs">Goldman Sachs</option>
-						</select>
-					</div>
-					<div class="form-group">
-						<button class="btn btn-primary" ng-hide="role != 'issuer'" ng-click="createDeal()">Create Deal</button>
-					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
-<div>
-	<table class="table table-bordered" ng-if="deals.length > 0">
-		<thead class="thead">
-			<tr>
-				<th ng-show="role != 'investor'">Orderbook</th>
-				<th>Book Status</th>
-				<th>Issuer</th>
-				<th ng-show="role == 'investor'">Order</th>
-				<th ng-show="role == 'investor'">Allocation</th>
-				<th ng-show="role == 'investor'">Confirmed</th>
-			</tr>
-		</thead>
-		<tr ng-repeat="deal in deals">
-			<td ng-show="role != 'investor'">
-				<a ng-href="#/book/{{deal.deploymentId}}">Book</a>
-			</td>
-			<td>
-				{{ deal.bookStatus }}
-			</td>
-			<td>
-				{{ userMap[deal.issuer].name }}
-			</td>
-			<td ng-show="role == 'investor'">
-				<input type="number" ng-model="deal.myOrder.ioi" ng-blur="updateOrder(deal)">
-			</td>
-			<td ng-show="role == 'investor'">
-			{{ deal.myOrder.alloc }}
-			</td>
-			<td ng-show="role == 'investor'">
-				<input type="checkbox"
-					   ng-model="deal.myOrder.confirmed" 
-					   ng-change="confirmOrder(deal)" 
-					   ng-disabled="deal.myOrder.confirmed">
-			</td>
-		</tr>
-	</table>
+<div class="row">
+	<div class="col-md-12">
+		<div>
+			<table class="table" ng-show="deals.length > 0">
+				<thead>
+					<tr>
+						<th ng-show="role != 'investor'">Orderbook</th>
+						<th>Book Status</th>
+						<th>Issuer</th>
+						<th ng-show="role == 'investor'">Order</th>
+						<th ng-show="role == 'investor'">Allocation</th>
+						<th ng-show="role == 'investor'">Confirmed</th>
+					</tr>
+				</thead>
+				<tr ng-repeat="deal in deals">
+					<td ng-show="role != 'investor'">
+						<a class="btn btn-info btn-md" 
+						   ng-href="#/book/{{deal.deploymentId}}">
+							<span class="glyphicon glyphicon-book"></span> Book
+						</a>
+					</td>
+					<td>
+						{{ deal.bookStatus }}
+					</td>
+					<td>
+						{{ userMap[deal.issuer].name }}
+					</td>
+					<td ng-show="role == 'investor'">
+						<input class="form-control"
+							   type="number" 
+							   ng-model="deal.myOrder.ioi" 
+							   ng-blur="updateOrder(deal)">
+					</td>
+					<td ng-show="role == 'investor'">
+						{{ deal.myOrder.alloc }}
+					</td>
+					<td ng-show="role == 'investor'">
+						<input class="form-control" 
+							   type="checkbox"
+							   ng-model="deal.myOrder.confirmed" 
+							   ng-change="confirmOrder(deal)" 
+							   ng-disabled="deal.myOrder.confirmed">
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 </div>
-<div>
-	<button class="btn btn-primary" 
-			ng-click="declareQib()" 
-			ng-if="userMap[username].role == 'investor'" 
-			ng-disabled="myDocs.indexOf('qib') > -1">
-		Declare QIB
-	</button>
+<div class="row">
+	<div class="col-md-12">
+		<div>
+			<button class="btn btn-primary" 
+					ng-click="declareQib()" 
+					ng-show="userMap[username].role == 'investor'" 
+					ng-disabled="myDocs.indexOf('qib') > -1">
+				Declare QIB
+			</button>
+		</div>
+	</div>
 </div>

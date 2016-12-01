@@ -1,35 +1,53 @@
-<div>
-	<button ng-click="getDealConfig()">Get Deal Config</button>
-	<button ng-click="getOrderbook()">Get Order Book</button>
-	<select ng-disabled="role != 'bank'" ng-model="dealConfig.bookStatus" ng-change="updateDealStatus()">
-		<option value="draft">Draft</option>
-		<option value="open">Open</option>
-		<option value="closed">Closed</option>
-		<option value="allocated">Allocated</option>
-		<option value="confirmed">Confirmed</option>
-		<option value="settled">Settled</option>
-	</select>
+<div class="row">
+	<div class="col-md-3">
+		<h2 style="margin-top: 0px; margin-bottom: 0px;">SnapChat Inc.</h2>
+	</div>
+	<div class="col-md-6"></div>
+	<div class="col-md-3">
+		<form>
+			<img src="imgs/spinner-26x26.gif">
+			<select class="form-control"
+					ng-disabled="role != 'bank'" 
+				    ng-model="dealConfig.bookStatus" 
+				    ng-change="updateDealStatus()">
+				<option value="draft">Draft</option>
+				<option value="open">Open</option>
+				<option value="closed">Closed</option>
+				<option value="allocated">Allocated</option>
+				<option value="confirmed">Confirmed</option>
+				<option value="settled">Settled</option>
+			</select>
+		</form>
+	</div>
 </div>
-<div>
-	<table border="1">
-		<tr>
-			<td>Investor</td>
-			<td>Amount</td>
-			<td>Allocation</td>
-			<td>Confirmed</td>
-		</tr>
-		<tr ng-repeat="(investor, order) in orderbook">
-			<td>{{ userMap[order.investor].name }}</td>
-			<td>{{ order.ioi }}</td>
-			<td><input type="number" ng-disabled="role != 'bank'" ng-model="order.alloc" ng-blur="allocateOrder(order)"></td>
-			<td>
-				<input type="checkbox"
-					   ng-model="order.confirmed"
-					   disabled>
-			</td>
-		</tr>
-	</table>
-</div>
-<div>
-	{{ dealConfig }}
+<div style="margin-top: 30px;" class="row">
+	<div class="col-md-12">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Investor</th>
+					<th>Amount (shares)</th>
+					<th>Allocation (shares)</th>
+					<th>Confirmed</th>
+				</tr>
+			</thead>
+			<tr ng-repeat="(investor, order) in orderbook">
+				<td>{{ userMap[order.investor].name }}</td>
+				<td>{{ order.ioi }}</td>
+				<td>
+					<input class="form-control" 
+						   type="number" 
+						   ng-disabled="role != 'bank'" 
+						   ng-model="order.alloc" 
+						   ng-blur="allocateOrder(order)">
+				</td>
+				<td>
+					<input class="form-control" 
+						   type="checkbox"
+						   ng-model="order.confirmed"
+						   disabled>
+				</td>
+			</tr>
+		</table>
+	</div>
 </div>
