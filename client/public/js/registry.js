@@ -37,6 +37,9 @@ angular.module("blockswap")
 
 .controller("RegistryController", function($window, $scope, $log, $q, RegistryService, BookService, DocService, KeyStoreService) {
 
+	$scope.deployingDeal = null;
+	$scope.deployingOrders = {};
+
 	var registry = null;
 	var docRegistry = null;
 
@@ -73,9 +76,20 @@ angular.module("blockswap")
 
 	$scope.$on('blockchain event', function(e, d){
 		if(d.event == "New Deal Registered") {
+			if($scope.deployingDeal != null) {
+				var deploymentId = angular.fromJson(d.data).deploymentId;
+				if($scope.deployingDeal == deploymentId)
+					$scope.deployingDeal = null;
+			}
 			$scope.getDeals();
 		} else if(d.event == "Order Allocated") {
 			$scope.getDeals();
+		} else if(d.event == "Order Added") {
+			angular.forEach($scope.deployingOrders, function(val, key){
+				if(val == d.id) {
+					$scope.deployingOrders[key] = null;
+				}
+			});
 		}
 	});
 
@@ -118,18 +132,25 @@ angular.module("blockswap")
 			return;
 		}
 		$log.log("Creating Deal");
+		$scope.deployingDeal = "pendingId";
 		BookService.createDeal($scope.username, $scope.banks, "draft", docRegistry.deploymentId, true)
 			.then(function(book){
 				registry.registerDeal(book.deploymentId, $scope.issuer);
+				$scope.deployingDeal = book.deploymentId;
 			});
 	};
 
 	$scope.updateOrder = function(deal) {
 		if(!deal.myOrder)
 			return;
+		$scope.deployingOrders[deal.issuer] = "pending";
 		$log.log("Updated Order for " + deal.issuer + " with value " + deal.myOrder.ioi);
 		var book = BookService.fromDeploymentId(deal.deploymentId);
-		book.addOrder($scope.username, deal.myOrder.ioi);
+		book.addOrder($scope.username, deal.myOrder.ioi)
+			.then(function(response) {
+				var deploymentId = response.data.result.message;
+				$scope.deployingOrders[deal.issuer] = deploymentId;
+			});
 	};
 
 	$scope.confirmOrder = function(deal) {
@@ -146,6 +167,6 @@ angular.module("blockswap")
 
 	$scope.declareQib = function() {
 		docRegistry.declareDoc("qib");
-	}
+	};
 
 });

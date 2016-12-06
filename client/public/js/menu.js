@@ -96,7 +96,7 @@ angular.module("blockswap")
 
 .constant("ALERT_DURATION", 5000)
 
-.controller("MenuController", function($rootScope, $scope, $log, ChaincodeService, KeyStoreService, USER_MAP){
+.controller("MenuController", function($rootScope, $scope, $log, $location, ChaincodeService, KeyStoreService, USER_MAP){
 
 	KeyStoreService.get("username")
 		.then(function(response){
@@ -124,6 +124,14 @@ angular.module("blockswap")
 					"role": properties.role
 				});
 			});
+	};
+
+	$scope.isMenuActive = function(test) {
+		if($location.path().indexOf(test) != -1) {
+			return "active";
+		} else {
+			return "";
+		}
 	};
 
 

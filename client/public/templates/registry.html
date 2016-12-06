@@ -12,7 +12,7 @@
 						<form>
 							<div class="form-group">
 								<label>Issuer:</label>
-								<input value="{{userMap[username].name}}" 
+								<input value="{{ username | username2company }}" 
 									   type="text" 
 									   class="form-control" 
 									   disabled>
@@ -26,13 +26,27 @@
 							</div>
 							<div class="form-group">
 								<button class="btn btn-primary" 
-										ng-hide="role != 'issuer'" 
+										ng-hide="role != 'issuer'"
+										ng-disabled="deployingDeal != null" 
 										ng-click="createDeal()">Create Deal</button>
+								<img ng-show="deployingDeal != null" src="imgs/spinner-26x26.gif">
 							</div>
 						</form>
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div>
+			<button class="btn btn-primary" 
+					ng-click="declareQib()" 
+					ng-show="userMap[username].role == 'investor'" 
+					ng-disabled="myDocs.indexOf('qib') > -1">
+				Declare QIB
+			</button>
 		</div>
 	</div>
 </div>
@@ -58,16 +72,19 @@
 						</a>
 					</td>
 					<td>
-						{{ deal.bookStatus }}
+						{{ deal.bookStatus | capitalizeFirstLetter }}
 					</td>
 					<td>
-						{{ userMap[deal.issuer].name }}
+						<b>{{ deal.issuer | username2company }}</b>
 					</td>
 					<td ng-show="role == 'investor'">
-						<input class="form-control"
+						<input style="display: inline; width: 80%"
+							   class="form-control"
 							   type="number" 
+							   ng-disabled="deployingOrders[deal.issuer] != null"
 							   ng-model="deal.myOrder.ioi" 
 							   ng-blur="updateOrder(deal)">
+						<img ng-show="deployingOrders[deal.issuer] != null" src="imgs/spinner-26x26.gif">
 					</td>
 					<td ng-show="role == 'investor'">
 						{{ deal.myOrder.alloc }}
@@ -81,18 +98,6 @@
 					</td>
 				</tr>
 			</table>
-		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12">
-		<div>
-			<button class="btn btn-primary" 
-					ng-click="declareQib()" 
-					ng-show="userMap[username].role == 'investor'" 
-					ng-disabled="myDocs.indexOf('qib') > -1">
-				Declare QIB
-			</button>
 		</div>
 	</div>
 </div>

@@ -14,6 +14,7 @@
 	<script type="text/javascript" src="bower_components/angular/angular.js"></script>
 	<script type="text/javascript" src="bower_components/angular-route/angular-route.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/keystore.js"></script>
 	<script type="text/javascript" src="js/hyperledger.js"></script>
 	<script type="text/javascript" src="js/admin.js"></script>
@@ -32,8 +33,10 @@
 				<a class="navbar-brand" href="#">BlockSwap</a>
 			</div>
 			<ul class="nav navbar-nav">
-				<li class="active"><a href="#/registry">Registry</a></li>
-				<li><a href="#/admin">Admin</a></li>
+				<li ng-class="isMenuActive('registry')"><a href="#/registry">Registry</a></li>
+				<li ng-class="isMenuActive('docs')"><a href="#/docs">Docs</a></li>
+				<li><a href="https://github.com/habond/blockswap">Code</a></li>
+				<li ng-class="isMenuActive('admin')"><a href="#/admin">Admin</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				<li>

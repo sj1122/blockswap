@@ -66,8 +66,13 @@ angular.module("blockswap")
 
 	var book = null;
 
+	$scope.pendingBookStatusUpdate = null;
+
 	$scope.$on('blockchain event', function(e, d){
 		if(d.event == "Book Status Change") {
+			if($scope.pendingBookStatusUpdate == d.id) {
+				$scope.pendingBookStatusUpdate = null;
+			}
 			$scope.getDealConfig();
 		} else if(d.event == "Order Added") {
 			$scope.getOrderbook();
@@ -88,8 +93,6 @@ angular.module("blockswap")
 		book.getRole()
 			.then(function(response){
 				$scope.role = response.data.result.message;
-			}, function(){
-
 			});
 	};
 
@@ -97,13 +100,16 @@ angular.module("blockswap")
 		book.getOrderbook()
 			.then(function(response){
 				$scope.orderbook = angular.fromJson(response.data.result.message);
-			}, function(){
-
 			});
 	};
 
 	$scope.updateDealStatus = function() {
-		book.updateDealStatus($scope.dealConfig.bookStatus);
+		$scope.pendingBookStatusUpdate = "pending"
+		book.updateDealStatus($scope.dealConfig.bookStatus)
+			.then(function(response){
+				var transactionId = response.data.result.message;
+				$scope.pendingBookStatusUpdate = transactionId;
+			});
 	};
 
 	$scope.addOrder = function() {

@@ -1,23 +1,39 @@
 <div class="row">
-	<div class="col-md-3">
-		<h2 style="margin-top: 0px; margin-bottom: 0px;">SnapChat Inc.</h2>
-	</div>
-	<div class="col-md-6"></div>
-	<div class="col-md-3">
-		<form>
-			<img src="imgs/spinner-26x26.gif">
-			<select class="form-control"
-					ng-disabled="role != 'bank'" 
-				    ng-model="dealConfig.bookStatus" 
-				    ng-change="updateDealStatus()">
-				<option value="draft">Draft</option>
-				<option value="open">Open</option>
-				<option value="closed">Closed</option>
-				<option value="allocated">Allocated</option>
-				<option value="confirmed">Confirmed</option>
-				<option value="settled">Settled</option>
-			</select>
-		</form>
+	<div class="col-md-12">
+		<div class="panel-group">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a style="cursor: pointer;" data-toggle="collapse" data-target="#collapse1">
+							<h2 style="margin-top: 5px; margin-bottom: 5px"
+								ng-bind="dealConfig.issuer | username2company">
+							</h2>
+						</a>
+					</h4>
+				</div>
+				<div id="collapse1" class="panel-collapse collapse">
+					<div class="panel-body">
+						<form>
+							<div class="form-group">
+								<select style="display: inline; width: 50%"
+										class="form-control"
+										ng-disabled="role != 'bank' || pendingBookStatusUpdate != null" 
+									    ng-model="dealConfig.bookStatus" 
+									    ng-change="updateDealStatus()">
+									<option value="draft">Draft</option>
+									<option value="open">Open</option>
+									<option value="closed">Closed</option>
+									<option value="allocated">Allocated</option>
+									<option value="confirmed">Confirmed</option>
+									<option value="settled">Settled</option>
+								</select>
+								<img ng-show="pendingBookStatusUpdate != null" src="imgs/spinner-26x26.gif">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 <div style="margin-top: 30px;" class="row">
@@ -32,7 +48,7 @@
 				</tr>
 			</thead>
 			<tr ng-repeat="(investor, order) in orderbook">
-				<td>{{ userMap[order.investor].name }}</td>
+				<td>{{ order.investor | username2company }}</td>
 				<td>{{ order.ioi }}</td>
 				<td>
 					<input class="form-control" 
