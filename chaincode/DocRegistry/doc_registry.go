@@ -71,7 +71,7 @@ func (c ChaincodeFunctions) GetDocsFor(company string) ([]byte, error) {
 	myCompany := string(myCompanyBytes)
 	role := string(roleBytes)
 	if myCompany != company && role != "regulator" && role != "bank" {
-		return nil, errors.New("Not Permitted")
+		return nil, errors.New("Not Permitted mycompany=" + myCompany + " company=" + company)
 	}
 	docs := c.getDocsFromBlockChain(company)
 	docsJson, _ := json.Marshal(docs)
