@@ -66,13 +66,6 @@ func (c ChaincodeFunctions) DeclareDoc(docType string) ([]byte, error)  {
 }
 
 func (c ChaincodeFunctions) GetDocsFor(company string) ([]byte, error) {
-	myCompanyBytes, _ := c.stub.ReadCertAttribute("company")
-	roleBytes, _ := c.stub.ReadCertAttribute("role")
-	myCompany := string(myCompanyBytes)
-	role := string(roleBytes)
-	if myCompany != company && role != "regulator" && role != "bank" {
-		return nil, errors.New("Not Permitted mycompany=" + myCompany + " company=" + company)
-	}
 	docs := c.getDocsFromBlockChain(company)
 	docsJson, _ := json.Marshal(docs)
 	return docsJson, nil
