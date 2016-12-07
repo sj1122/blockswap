@@ -80,11 +80,11 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 }
 
 type DealConfig struct {
-	Issuer 		string 		`json:"issuer"`
-	Banks 		[]string 	`json:"banks"`
-	BookStatus 	string 		`json:"bookStatus"`
-	RequireQib	bool		`json:"requireQib"`
-	DocRegAddress string 	`json:"docRegAddress"`
+	Issuer 			string 		`json:"issuer"`
+	Banks 			[]string 	`json:"banks"`
+	BookStatus 		string 		`json:"bookStatus"`
+	RequiredDocs	[]string	`json:"requiredDocs"`
+	DocRegAddress 	string 		`json:"docRegAddress"`
 }
 
 type Order struct {
@@ -119,7 +119,7 @@ func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, erro
 		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"book is not open\"}"))
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
 	}
-	if dealConfig.RequireQib && !c.checkInvestorQib(dealConfig.DocRegAddress, investor) {
+	if !c.checkInvestorHasRequiredDocs(dealConfig.DocRegAddress, investor, dealConfig.RequiredDocs) {
 		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"" + investor + " is not a QIB\"}"))
 		return nil, errors.New("Order's cannot be placed without QIB status")
 	}
@@ -215,12 +215,17 @@ func (c ChaincodeFunctions) saveOrderbookToBlockChain(orderbook map[string]Order
 	_ = c.stub.PutState("orderbook", []byte(orderbookJson))
 }
 
-func (c ChaincodeFunctions) checkInvestorQib(address string, company string) bool {
+func (c ChaincodeFunctions) checkInvestorHasRequiredDocs(address string, company string, requiredDocs []string) bool {
 	invokeArgs := util.ToChaincodeArgs("getDocs", company)
 	docsJson, _ := c.stub.QueryChaincode(address, invokeArgs)
 	var docs []string
 	_ = json.Unmarshal(docsJson, &docs)
-	return stringInSlice("qib", docs)
+	for _, reqDoc := range requiredDocs {
+		if !stringInSlice(reqDoc, docs) {
+			return false
+		}
+	}
+	return true
 }
 
 func stringInSlice(a string, list []string) bool {
