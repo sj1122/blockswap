@@ -119,8 +119,9 @@ func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, erro
 		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"book is not open\"}"))
 		return nil, errors.New("Orders cannot be placed unless deal status is 'Open'")
 	}
-	if !c.checkInvestorHasRequiredDocs(dealConfig.DocRegAddress, investor, dealConfig.RequiredDocs) {
-		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"" + investor + " is not a QIB\"}"))
+	hasReqDocs, reqDoc := c.checkInvestorHasRequiredDocs(dealConfig.DocRegAddress, investor, dealConfig.RequiredDocs)
+	if !hasReqDocs {
+		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"" + investor + " does not have " + reqDoc +  "\"}"))
 		return nil, errors.New("Order's cannot be placed without QIB status")
 	}
 	order := c.getOrderFromBlockChain(investor)
@@ -215,17 +216,18 @@ func (c ChaincodeFunctions) saveOrderbookToBlockChain(orderbook map[string]Order
 	_ = c.stub.PutState("orderbook", []byte(orderbookJson))
 }
 
-func (c ChaincodeFunctions) checkInvestorHasRequiredDocs(address string, company string, requiredDocs []string) bool {
+func (c ChaincodeFunctions) checkInvestorHasRequiredDocs(address string, company string, 
+		requiredDocs []string) (bool, string) {
 	invokeArgs := util.ToChaincodeArgs("getDocs", company)
 	docsJson, _ := c.stub.QueryChaincode(address, invokeArgs)
 	var docs []string
 	_ = json.Unmarshal(docsJson, &docs)
 	for _, reqDoc := range requiredDocs {
 		if !stringInSlice(reqDoc, docs) {
-			return false
+			return false, reqDoc
 		}
 	}
-	return true
+	return true, ""
 }
 
 func stringInSlice(a string, list []string) bool {
