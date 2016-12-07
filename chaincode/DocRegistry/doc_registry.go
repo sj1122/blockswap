@@ -66,12 +66,24 @@ func (c ChaincodeFunctions) DeclareDoc(docType string) ([]byte, error)  {
 }
 
 func (c ChaincodeFunctions) GetDocsFor(company string) ([]byte, error) {
+	myCompanyBytes, _ := c.stub.ReadCertAttribute("company")
+	roleBytes, _ := c.stub.ReadCertAttribute("role")
+	myCompany := string(myCompanyBytes)
+	role := string(roleBytes)
+	if myCompany != company && role != "regulator" && role != "bank" {
+		return nil, errors.New("Not Permitted")
+	}
 	docs := c.getDocsFromBlockChain(company)
 	docsJson, _ := json.Marshal(docs)
 	return docsJson, nil
 }
 
 func (c ChaincodeFunctions) GetDocsForAllCompanies() ([]byte, error) {
+	roleBytes, _ := c.stub.ReadCertAttribute("role")
+	role := string(roleBytes)
+	if role != "regulator" && role != "bank" {
+		return nil, errors.New("Not Permitted")
+	}
 	allDocs := make(map[string][]string)
 	companiesJson, _ := c.stub.GetState("_companies")
 	var companies []string
