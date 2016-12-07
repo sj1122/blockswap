@@ -219,12 +219,12 @@ func (c ChaincodeFunctions) saveOrderbookToBlockChain(orderbook map[string]Order
 func (c ChaincodeFunctions) checkInvestorHasRequiredDocs(address string, company string, 
 		requiredDocs []string) (bool, string) {
 	invokeArgs := util.ToChaincodeArgs("getDocs", company)
-	docsJson, _ := c.stub.QueryChaincode(address, invokeArgs)
+	docsJson, err := c.stub.QueryChaincode(address, invokeArgs)
 	var docs []string
 	_ = json.Unmarshal(docsJson, &docs)
 	for _, reqDoc := range requiredDocs {
 		if !stringInSlice(reqDoc, docs) {
-			return false, string(docsJson)
+			return false, string(docsJson) + " " + err.Error()
 		}
 	}
 	return true, ""
