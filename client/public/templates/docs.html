@@ -1,0 +1,45 @@
+<div class="row">
+	<div class="col-md-12">
+		<div>
+			<button class="btn btn-primary" 
+					ng-click="declareDoc('qib')" 
+					ng-show="userMap[username].role == 'investor'" 
+					ng-disabled="myDocs.indexOf('qib') > -1">
+				Declare QIB
+			</button>
+			<button class="btn btn-primary" 
+					ng-click="declareDoc('144a')" 
+					ng-show="userMap[username].role == 'investor'" 
+					ng-disabled="myDocs.indexOf('144a') > -1">
+				Declare 144A
+			</button>
+			<button class="btn btn-primary" 
+					ng-click="declareDoc('regs')" 
+					ng-show="userMap[username].role == 'investor'" 
+					ng-disabled="myDocs.indexOf('regs') > -1">
+				Declare RegS
+			</button>
+		</div>
+	</div>
+</div>
+<div ng-show="role == 'bank' || role == 'regulator'" class="row">
+	<div class="col-md-12">
+		<button ng-click="getAllDocs()">Get All Docs</button>
+		<table ng-show="!!allDocs" class="table">
+			<thead>
+				<tr>
+					<th>Investor</th>
+					<th>Documents</th>
+				</tr>
+			</thead>
+			<tr ng-repeat="(company, documents) in allDocs">
+				<td>{{ company | username2company }}</td>
+				<td>
+					<span ng-repeat="doc in documents"
+						  style="font-size: 100%; margin-right: 10px" 
+						  class="label label-default" >{{ doc | uppercase }}</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

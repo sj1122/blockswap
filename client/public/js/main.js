@@ -23,6 +23,11 @@ angular.module("blockswap", ["ngRoute"])
 			controller: "AdminController"
 		})
 
+		.when("/docs", {
+			templateUrl: "templates/docs.html",
+			controller: "DocController"			
+		})
+
 		.otherwise({
 			redirectTo: '/registry'
 		});
@@ -30,7 +35,7 @@ angular.module("blockswap", ["ngRoute"])
 })
 
 .run(function(ChaincodeEventMonitor){
-
+	
 	ChaincodeEventMonitor.start();
 
 });

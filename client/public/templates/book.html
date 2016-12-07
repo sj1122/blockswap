@@ -5,9 +5,9 @@
 				<div class="panel-heading">
 					<h4 class="panel-title">
 						<a style="cursor: pointer;" data-toggle="collapse" data-target="#collapse1">
-							<h2 style="margin-top: 5px; margin-bottom: 5px"
+							<h3 style="margin-top: 5px; margin-bottom: 5px"
 								ng-bind="dealConfig.issuer | username2company">
-							</h2>
+							</h3>
 						</a>
 					</h4>
 				</div>
@@ -58,12 +58,21 @@
 						   ng-blur="allocateOrder(order)">
 				</td>
 				<td>
-					<input class="form-control" 
+					<input style="width: 20px; height: 20px;"
+						   class="form-control" 
 						   type="checkbox"
 						   ng-model="order.confirmed"
 						   disabled>
 				</td>
 			</tr>
+			<tfoot>
+				<tr style="font-weight: bold; font-style: italic;">
+					<td>Totals</td>
+					<td ng-bind="sumIoi"></td>
+					<td ng-bind="sumAlloc"></td>
+					<td>&nbsp;</td>
+				</tr>
+			</tfoot>
 		</table>
 	</div>
 </div>

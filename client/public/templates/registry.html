@@ -25,6 +25,13 @@
 								</select>
 							</div>
 							<div class="form-group">
+								<select class="form-control" ng-model="reqDocs" multiple>
+									<option value="qib">QIB</option>
+									<option value="regs">RegS</option>
+									<option value="144a">144A</option>
+								</select>
+							</div>
+							<div class="form-group">
 								<button class="btn btn-primary" 
 										ng-hide="role != 'issuer'"
 										ng-disabled="deployingDeal != null" 
@@ -41,24 +48,13 @@
 <div class="row">
 	<div class="col-md-12">
 		<div>
-			<button class="btn btn-primary" 
-					ng-click="declareQib()" 
-					ng-show="userMap[username].role == 'investor'" 
-					ng-disabled="myDocs.indexOf('qib') > -1">
-				Declare QIB
-			</button>
-		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12">
-		<div>
 			<table class="table" ng-show="deals.length > 0">
 				<thead>
 					<tr>
 						<th ng-show="role != 'investor'">Orderbook</th>
 						<th>Book Status</th>
 						<th>Issuer</th>
+						<th>Required Docs</th>
 						<th ng-show="role == 'investor'">Order</th>
 						<th ng-show="role == 'investor'">Allocation</th>
 						<th ng-show="role == 'investor'">Confirmed</th>
@@ -77,20 +73,27 @@
 					<td>
 						<b>{{ deal.issuer | username2company }}</b>
 					</td>
+					<td>
+						<span ng-repeat="doc in deal.requiredDocs"
+						  	  style="font-size: 75%; margin-right: 5px" 
+						 	  class="label label-default" >{{ doc | uppercase }}</span>
+					</td>
 					<td ng-show="role == 'investor'">
 						<input style="display: inline; width: 80%"
 							   class="form-control"
 							   type="number" 
-							   ng-disabled="deployingOrders[deal.issuer] != null"
 							   ng-model="deal.myOrder.ioi" 
-							   ng-blur="updateOrder(deal)">
+							   ng-blur="updateOrder(deal)"
+							   placeholder="{{ missingDoc(deal) ? 'Missing Doc' : '' }}"
+							   ng-disabled="deployingOrders[deal.issuer] != null || missingDoc(deal)">
 						<img ng-show="deployingOrders[deal.issuer] != null" src="imgs/spinner-26x26.gif">
 					</td>
 					<td ng-show="role == 'investor'">
 						{{ deal.myOrder.alloc }}
 					</td>
 					<td ng-show="role == 'investor'">
-						<input class="form-control" 
+						<input style="width: 20px; height: 20px;"
+							   class="form-control" 
 							   type="checkbox"
 							   ng-model="deal.myOrder.confirmed" 
 							   ng-change="confirmOrder(deal)" 

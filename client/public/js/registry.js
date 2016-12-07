@@ -131,9 +131,12 @@ angular.module("blockswap")
 			alert("You must select at least 1 syndicate bank");
 			return;
 		}
+		if(!$scope.reqDocs) {
+			$scope.reqDocs = [];
+		}
 		$log.log("Creating Deal");
 		$scope.deployingDeal = "pendingId";
-		BookService.createDeal($scope.username, $scope.banks, "draft", docRegistry.deploymentId, true)
+		BookService.createDeal($scope.username, $scope.banks, "draft", docRegistry.deploymentId, $scope.reqDocs)
 			.then(function(book){
 				registry.registerDeal(book.deploymentId, $scope.issuer);
 				$scope.deployingDeal = book.deploymentId;
@@ -165,8 +168,15 @@ angular.module("blockswap")
 		}
 	};
 
-	$scope.declareQib = function() {
-		docRegistry.declareDoc("qib");
-	};
+	$scope.missingDoc = function(deal) {
+		var requiredDocs = deal.requiredDocs;
+		var myDocs = $scope.myDocs;
+		for(var i=0; i<requiredDocs.length; i++) {
+			if(myDocs.indexOf(requiredDocs[i]) == -1) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 });

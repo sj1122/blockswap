@@ -22,7 +22,8 @@ angular.module("blockswap")
 		$q.all(deploymentPingPromises)
 			.then(function(responses){
 				angular.forEach(responses, function(response, i){
-					ProcessDeployedContract(pendingDeployments[i], response);
+					if(response.data.result.message)
+						ProcessDeployedContract(pendingDeployments[i], response);
 				});
 			});
 	}

@@ -33,10 +33,9 @@
 				<a class="navbar-brand" href="#">BlockSwap</a>
 			</div>
 			<ul class="nav navbar-nav">
-				<li ng-class="isMenuActive('registry')"><a href="#/registry">Registry</a></li>
-				<li ng-class="isMenuActive('docs')"><a href="#/docs">Docs</a></li>
-				<li><a href="https://github.com/habond/blockswap">Code</a></li>
-				<li ng-class="isMenuActive('admin')"><a href="#/admin">Admin</a></li>
+				<li ng-class="activeMenu('registry')"><a href="#/registry">Deals</a></li>
+				<li ng-class="activeMenu('docs')"><a href="#/docs">Docs</a></li>
+				<li ng-class="activeMenu('admin')"><a href="#/admin">Admin</a></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				<li>
@@ -60,6 +59,7 @@
 						</select>
 					</form>
 				</li>
+				<li><a target="_blank" href="https://github.com/habond/blockswap">Code</a></li>
 			</ul>
 		</div>
 	</nav>
@@ -70,7 +70,10 @@
     			{{ message }}
     		</div>
     	</div>
-		<div ng-view></div>
+		<div ng-show="!!username" ng-view></div>
+		<div ng-hide="!!username">
+			Please Login to continue!
+		</div>
 	</div>
 
 </body>

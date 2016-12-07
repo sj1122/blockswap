@@ -1,2 +1,12 @@
-<button class="btn btn-primary" ng-click="deployDealRegistry()">Deploy Deal Registry</button>
-<button class="btn btn-primary" ng-click="deployDocRegistry()">Deploy Doc Registry</button>
+<button class="btn btn-primary" 
+		ng-disabled="dealRegDeployed"
+	    ng-click="deployDealRegistry()">
+	Deploy Deal Registry
+</button>
+<img ng-show="pendingDealRegDeploymentId != null" src="imgs/spinner-26x26.gif">
+<button class="btn btn-primary" 
+		ng-disabled="docRegDeployed"
+        ng-click="deployDocRegistry()">
+	Deploy Doc Registry
+</button>
+<img ng-show="pendingDocRegDeploymentId != null" src="imgs/spinner-26x26.gif">

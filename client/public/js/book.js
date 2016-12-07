@@ -38,14 +38,14 @@ angular.module("blockswap")
 
 	return {
 
-		"createDeal": function(issuer, banks, bookStatus, docRegAddress, requireQib) {
+		"createDeal": function(issuer, banks, bookStatus, docRegAddress, requiredDocs) {
 			var nonce = Math.random().toString();
 			var config = angular.toJson({
 				"issuer": issuer,
 				"banks": banks,
 				"bookStatus": bookStatus,
 				"docRegAddress": docRegAddress,
-				"requireQib": requireQib
+				"requiredDocs": requiredDocs
 			});
 			return ChaincodeService.deploy(BOOK_GITHUB_LOCATION, "init", [config, nonce])
 				.then(function(response){
@@ -100,6 +100,12 @@ angular.module("blockswap")
 		book.getOrderbook()
 			.then(function(response){
 				$scope.orderbook = angular.fromJson(response.data.result.message);
+				var orders = Object.keys($scope.orderbook).map(function(key){return $scope.orderbook[key]})
+				$scope.sumIoi = orders.map(function(order){ return order.ioi; })
+					.reduce(function(a,b){ return a+b; });
+				$scope.sumAlloc = orders.map(function(order){ return order.alloc; })
+					.reduce(function(a,b){ return a+b; });
+
 			});
 	};
 
