@@ -21,7 +21,7 @@ func main() {
 }
 
 func (t Chaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	_ = stub.PutState("deals", []byte("[]"))
+	_ = stub.PutState("_companies", []byte("[]"))
 	return nil, nil
 }
 
@@ -43,12 +43,10 @@ func (t Chaincode) Query(stub shim.ChaincodeStubInterface, function string, args
 	} else if function == "getDocs" {
 		company := args[0]
 		return fns.GetDocsFor(company)
+	} else if function == "getDocsForAllCompanies" {
+		return fns.GetDocsForAllCompanies()
 	}
 	return nil, errors.New("Received unknown function query: " + function)
-}
-
-type DealConfig struct {
-	Docs []string  `json:"docs"`
 }
 
 // Public Functions
@@ -73,6 +71,19 @@ func (c ChaincodeFunctions) GetDocsFor(company string) ([]byte, error) {
 	return docsJson, nil
 }
 
+func (c ChaincodeFunctions) GetDocsForAllCompanies() ([]byte, error) {
+	allDocs := make(map[string][]string)
+	companiesJson, _ := c.stub.GetState("_companies")
+	var companies []string
+	_ = json.Unmarshal(companiesJson, &companies)
+	for _, company := range companies {
+		docs := c.getDocsFromBlockChain(company)
+		allDocs[company] = docs
+	}
+	allDocsJson, _ := json.Marshal(allDocs)
+	return allDocsJson, nil
+}
+
 // Private Functions
 
 func (c ChaincodeFunctions) getDocsFromBlockChain(company string) []string {
@@ -86,6 +97,12 @@ func (c ChaincodeFunctions) getDocsFromBlockChain(company string) []string {
 }
 
 func (c ChaincodeFunctions) saveDocsToBlockChain(company string, docs []string) {
+	companiesJson, _ := c.stub.GetState("_companies")
+	var companies []string
+	_ = json.Unmarshal(companiesJson, &companies)
+	companies = append(companies, company)
+	companiesJson, _ = json.Marshal(companies)
+	_ = c.stub.PutState("_companies", []byte(companiesJson))
 	docsJson, _ := json.Marshal(docs)
 	_ = c.stub.PutState(company, []byte(docsJson))
 }
