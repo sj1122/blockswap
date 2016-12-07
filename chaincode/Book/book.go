@@ -122,7 +122,7 @@ func (c ChaincodeFunctions) AddOrder(investor string, ioi float64) ([]byte, erro
 	hasReqDocs, reqDoc := c.checkInvestorHasRequiredDocs(dealConfig.DocRegAddress, investor, dealConfig.RequiredDocs)
 	if !hasReqDocs {
 		c.stub.SetEvent("Permission Denied", []byte("{\"reason\":\"" + investor + " does not have " + reqDoc +  "\"}"))
-		return nil, errors.New("Order's cannot be placed without QIB status")
+		return nil, errors.New("Order cannot be placed without " + reqDoc +  " status")
 	}
 	order := c.getOrderFromBlockChain(investor)
 	if order.Investor == "" {
@@ -223,7 +223,7 @@ func (c ChaincodeFunctions) checkInvestorHasRequiredDocs(address string, company
 	var docs []string
 	_ = json.Unmarshal(docsJson, &docs)
 	for _, reqDoc := range requiredDocs {
-		if !stringInSlice(reqDoc, docs) {
+		if !stringInSlice("qib", docs) {
 			return false, reqDoc
 		}
 	}
