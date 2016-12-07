@@ -223,8 +223,8 @@ func (c ChaincodeFunctions) checkInvestorHasRequiredDocs(address string, company
 	var docs []string
 	_ = json.Unmarshal(docsJson, &docs)
 	for _, reqDoc := range requiredDocs {
-		if !stringInSlice("qib", docs) {
-			return false, reqDoc
+		if !stringInSlice(reqDoc, docs) {
+			return false, string(docsJson)
 		}
 	}
 	return true, ""
