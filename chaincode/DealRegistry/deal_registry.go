@@ -53,6 +53,7 @@ type DealConfig struct {
 	Banks 			[]string 	`json:"banks"`
 	BookStatus 		string 		`json:"bookStatus"`
 	Price 			float64 	`json:"price"`
+	RequiredDocs	[]string	`json:"requiredDocs"`
 }
 
 // Public Functions
