@@ -168,6 +168,7 @@ func (c ChaincodeFunctions) GetOrderbook() ([]byte, error) {
 func (c ChaincodeFunctions) AllocateOrder(investor string, alloc float64) ([]byte, error) {
 	order := c.getOrderFromBlockChain(investor)
 	order.Alloc = alloc
+	order.Confirmed = false
 	c.saveOrderToBlockChain(order)
 	c.stub.SetEvent("Order Allocated", []byte("{\"investor\":\"" + investor + "\"}"))
 	return nil, nil
