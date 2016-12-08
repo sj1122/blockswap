@@ -17,7 +17,7 @@
 							<div class="form-group">
 								<select style="display: inline; width: 50%"
 										class="form-control"
-										ng-disabled="role != 'bank' || pendingBookStatusUpdate != null" 
+										ng-disabled="role != 'bank' || pendingBookStatusUpdate != null || dealConfig.bookStatus == 'settled'" 
 									    ng-model="dealConfig.bookStatus" 
 									    ng-change="updateDealStatus()">
 									<option value="draft">Draft</option>
@@ -25,9 +25,27 @@
 									<option value="closed">Closed</option>
 									<option value="allocated">Allocated</option>
 									<option value="confirmed">Confirmed</option>
-									<option value="settled">Settled</option>
+									<option ng-show="dealConfig.bookStatus == 'settled'" 
+											value="settled">Settled</option>
 								</select>
 								<img ng-show="pendingBookStatusUpdate != null" src="imgs/spinner-26x26.gif">
+							</div>
+							<div ng-show="role == 'clearing_house'">
+								Account Number: {{ dealConfig.issuer |  username2acctno }}
+							</div>
+							<div ng-show="role == 'clearing_house'">
+								Account Balance: {{
+									dealConfig.bookStatus == 'settled' ? 
+					  				0 : 
+					   				(sumAlloc | counter: transferPerc:'down' | number: 0)
+								}}
+							</div>
+							<div ng-show="role == 'clearing_house'">
+								<button ng-disabled="dealConfig.bookStatus == 'settled'"
+										class="btn btn-primary" 
+										ng-click="doTransfer()">
+									Settle
+								</button>
 							</div>
 						</form>
 					</div>
@@ -36,28 +54,41 @@
 		</div>
 	</div>
 </div>
-<div style="margin-top: 30px;" class="row">
+<div class="row">
 	<div class="col-md-12">
 		<table class="table">
 			<thead>
 				<tr>
 					<th>Investor</th>
-					<th>Amount (shares)</th>
+					<th ng-show="role == 'regulator' || role == 'clearing_house'">Account No.</th>
+					<th ng-show="role == 'clearing_house'">Account Balance</th>
+					<th ng-hide="role == 'clearing_house'">Amount (shares)</th>
 					<th>Allocation (shares)</th>
-					<th>Confirmed</th>
+					<th ng-hide="role == 'clearing_house'">Confirmed</th>
 				</tr>
 			</thead>
 			<tr ng-repeat="(investor, order) in orderbook">
 				<td>{{ order.investor | username2company }}</td>
-				<td>{{ order.ioi }}</td>
+				<td ng-show="role == 'regulator' || role == 'clearing_house'">
+					{{ order.investor | username2acctno }}
+				</td>
+				<td ng-show="role == 'clearing_house'">
+					{{ dealConfig.bookStatus == 'settled' ? 
+					   order.alloc : 
+					   (order.alloc | counter: transferPerc:'up' | number: 0) 
+					}}
+				</td>
+				<td ng-hide="role == 'clearing_house'">{{ order.ioi }}</td>
 				<td>
-					<input class="form-control" 
+					<input style="display: inline; width: 80%"
+						   class="form-control" 
 						   type="number" 
 						   ng-disabled="role != 'bank'" 
 						   ng-model="order.alloc" 
 						   ng-blur="allocateOrder(order)">
+					<img ng-show="deployingAllocs[order.investor] != null" src="imgs/spinner-26x26.gif">
 				</td>
-				<td>
+				<td ng-hide="role == 'clearing_house'">
 					<input style="width: 20px; height: 20px;"
 						   class="form-control" 
 						   type="checkbox"
@@ -68,9 +99,11 @@
 			<tfoot>
 				<tr style="font-weight: bold; font-style: italic;">
 					<td>Totals</td>
-					<td ng-bind="sumIoi"></td>
+					<td ng-show="role == 'regulator' || role == 'clearing_house'">&nbsp;</td>
+					<td ng-hide="role == 'clearing_house'" ng-bind="sumIoi"></td>
+					<th ng-show="role == 'clearing_house'">&nbsp;</th>
 					<td ng-bind="sumAlloc"></td>
-					<td>&nbsp;</td>
+					<td ng-hide="role == 'clearing_house'">&nbsp;</td>
 				</tr>
 			</tfoot>
 		</table>

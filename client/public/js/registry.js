@@ -78,8 +78,13 @@ angular.module("blockswap")
 		if(d.event == "New Deal Registered") {
 			if($scope.deployingDeal != null) {
 				var deploymentId = angular.fromJson(d.data).deploymentId;
-				if($scope.deployingDeal == deploymentId)
+				if($scope.deployingDeal == deploymentId) {
 					$scope.deployingDeal = null;
+					// Awful Practice!!
+					$("#collapse1").collapse('hide');
+					$scope.banks = [];
+					$scope.reqDocs = [];
+				}
 			}
 			$scope.getDeals();
 		} else if(d.event == "Order Allocated") {
@@ -111,7 +116,6 @@ angular.module("blockswap")
 				var promises = books.map(function(book){ return book.getOrder($scope.username); });
 				$q.all(promises)
 					.then(function(results){
-						console.log(results);
 						angular.forEach(results, function(response, i){
 							var order = angular.fromJson(response.data.result.message);
 							if(order.ioi > 0) {
@@ -161,11 +165,7 @@ angular.module("blockswap")
 			return;
 		$log.log("Confirming Order for " + deal.issuer);
 		var book = BookService.fromDeploymentId(deal.deploymentId);
-		if($window.confirm("Are you sure you want to confirm your allocation of " + deal.myOrder.alloc)) {
-			book.confirmOrder($scope.username);
-		} else {
-			deal.myOrder.confirmed = false;
-		}
+		book.confirmOrder($scope.username);
 	};
 
 	$scope.missingDoc = function(deal) {
@@ -177,6 +177,6 @@ angular.module("blockswap")
 			}
 		}
 		return false;
-	}
+	};
 
 });

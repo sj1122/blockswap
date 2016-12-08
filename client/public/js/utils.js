@@ -12,4 +12,22 @@ angular.module("blockswap")
 		return (!!username) ? USER_MAP[username].name  : '';
 	}
 
+})
+
+.filter("username2acctno", function(USER_MAP) {
+
+	return function(username) {
+		return (!!username) ? USER_MAP[username].acctNo : '';
+	}
+
+})
+
+.filter("counter", function() {
+
+	return function(value, percentage, direction) {
+		if(direction == "down")
+			percentage = 1 - percentage;
+		return (value ? value : 0) * percentage;
+	}
+
 });

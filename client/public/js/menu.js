@@ -5,24 +5,28 @@ angular.module("blockswap")
 	"snapchat": {
 		"name": "SnapChat Inc.",
 		"role": "issuer",
+		"acctNo": 8288,
 		"password": "snappwd"
 	},
 
 	"bofa": {
 		"name": "Bank of America",
-		"role": "bank", 
+		"role": "bank",
+		"acctNo": 1929,
 		"password": "bamlpwd"
 	},
 
 	"jpm": {
 		"name": "JP Morgan Chase",
-		"role": "bank", 
+		"role": "bank",
+		"acctNo": 9111,
 		"password": "jppwd"
 	},
 
 	"gs": {
 		"name": "Goldman Sachs",
 		"role": "bank",
+		"acctNo": 1434,
 		"password": "gspwd"
 	},
 
@@ -41,48 +45,56 @@ angular.module("blockswap")
 	"brock": {
 		"name": "Black Rock",
 		"role": "investor", 
+		"acctNo": 7591,
 		"password": "brpwd"
 	},
 
 	"fdlty": {
 		"name": "Fidelity",
-		"role": "investor", 
+		"role": "investor",
+		"acctNo": 4431,
 		"password": "ftypwd"
 	},
 
 	"abnb": {
 		"name": "Airbnb",
-		"role": "issuer", 
+		"role": "issuer",
+		"acctNo": 1928,
 		"password": "abpwd"
 	},
 
 	"ptir": {
 		"name": "Palantir",
 		"role": "issuer", 
+		"acctNo": 6758,
 		"password": "ptripwd"
 	},
 
 	"uber": {
 		"name": "Uber",
 		"role": "issuer", 
+		"acctNo": 5588,
 		"password": "uberpwd"
 	},
 
 	"vang": {
 		"name": "Vanguard",
-		"role": "investor", 
+		"role": "investor",
+		"acctNo": 1189,
 		"password": "vangpwd"
 	},
 
 	"pimco": {
 		"name": "Pimco",
-		"role": "investor", 
+		"role": "investor",
+		"acctNo": 0897, 
 		"password": "pimpwd"
 	},
 
 	"amundi": {
 		"name": "Amundi",
-		"role": "investor", 
+		"role": "investor",
+		"acctNo": 0897,
 		"password": "amunpwd"
 	},
 

@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="col-md-12">
 		<div ng-show="userMap[username].role == 'issuer'" class="panel-group">
-			<div class="panel panel-default">
+			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<h4 class="panel-title">
 						<a style="cursor: pointer;" data-toggle="collapse" data-target="#collapse1">New Deal</a>
@@ -18,14 +18,16 @@
 									   disabled>
 							</div>
 							<div class="form-group">
-								<select class="form-control" ng-model="banks" multiple>
+								<label>Banks:</label>
+								<select style="overflow:hidden;" class="form-control" ng-model="banks" multiple>
 									<option value="bofa">Bank of America</option>
 									<option value="jpm">JP Morgan</option>
 									<option value="gs">Goldman Sachs</option>
 								</select>
 							</div>
 							<div class="form-group">
-								<select class="form-control" ng-model="reqDocs" multiple>
+								<label>Document Requirement:</label>
+								<select style="overflow:hidden;" class="form-control" ng-model="reqDocs" multiple>
 									<option value="qib">QIB</option>
 									<option value="regs">RegS</option>
 									<option value="144a">144A</option>
@@ -62,7 +64,8 @@
 				</thead>
 				<tr ng-repeat="deal in deals">
 					<td ng-show="role != 'investor'">
-						<a class="btn btn-info btn-md" 
+						<a style="background-color: #337ab7; border-color: #337ab7;"
+						   class="btn btn-info btn-md" 
 						   ng-href="#/book/{{deal.deploymentId}}">
 							<span class="glyphicon glyphicon-book"></span> Book
 						</a>
@@ -76,7 +79,9 @@
 					<td>
 						<span ng-repeat="doc in deal.requiredDocs"
 						  	  style="font-size: 75%; margin-right: 5px" 
-						 	  class="label label-default" >{{ doc | uppercase }}</span>
+						 	  class="label label-{{ myDocs.indexOf(doc) == -1 ? 'default' : 'success' }}" >
+						 	{{ doc | uppercase }}
+						</span>
 					</td>
 					<td ng-show="role == 'investor'">
 						<input style="display: inline; width: 80%"
@@ -84,8 +89,8 @@
 							   type="number" 
 							   ng-model="deal.myOrder.ioi" 
 							   ng-blur="updateOrder(deal)"
-							   placeholder="{{ missingDoc(deal) ? 'Missing Doc' : '' }}"
-							   ng-disabled="deployingOrders[deal.issuer] != null || missingDoc(deal)">
+							   placeholder="{{ missingDoc(deal) ? 'Missing Doc(s)' : '' }}"
+							   ng-disabled="deployingOrders[deal.issuer] != null || deal.bookStatus != 'open' || missingDoc(deal)">
 						<img ng-show="deployingOrders[deal.issuer] != null" src="imgs/spinner-26x26.gif">
 					</td>
 					<td ng-show="role == 'investor'">
@@ -97,7 +102,7 @@
 							   type="checkbox"
 							   ng-model="deal.myOrder.confirmed" 
 							   ng-change="confirmOrder(deal)" 
-							   ng-disabled="deal.myOrder.confirmed">
+							   ng-disabled="deal.myOrder.confirmed || deal.bookStatus != 'allocated' || !deal.myOrder.alloc ">
 					</td>
 				</tr>
 			</table>

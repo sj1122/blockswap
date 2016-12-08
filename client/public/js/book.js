@@ -62,11 +62,12 @@ angular.module("blockswap")
 
 })
 
-.controller("BookController", function($log, $scope, $location, $routeParams, BookService){
+.controller("BookController", function($log, $scope, $location, $routeParams, $interval, BookService){
 
 	var book = null;
 
 	$scope.pendingBookStatusUpdate = null;
+	$scope.deployingAllocs = {};
 
 	$scope.$on('blockchain event', function(e, d){
 		if(d.event == "Book Status Change") {
@@ -78,6 +79,13 @@ angular.module("blockswap")
 			$scope.getOrderbook();
 		} else if(d.event == "Order Confirmed") {
 			$scope.getOrderbook();
+		} else if(d.event == "Order Allocated") {
+			$scope.getOrderbook();
+			angular.forEach($scope.deployingAllocs, function(val, key){
+				if(val == d.id) {
+					$scope.deployingAllocs[key] = null;
+				}
+			});
 		}
 	});
 
@@ -102,9 +110,9 @@ angular.module("blockswap")
 				$scope.orderbook = angular.fromJson(response.data.result.message);
 				var orders = Object.keys($scope.orderbook).map(function(key){return $scope.orderbook[key]})
 				$scope.sumIoi = orders.map(function(order){ return order.ioi; })
-					.reduce(function(a,b){ return a+b; });
+					.reduce(function(a,b){ return a+b; }, 0);
 				$scope.sumAlloc = orders.map(function(order){ return order.alloc; })
-					.reduce(function(a,b){ return a+b; });
+					.reduce(function(a,b){ return a+b; }, 0);
 
 			});
 	};
@@ -123,15 +131,53 @@ angular.module("blockswap")
 	};
 
 	$scope.allocateOrder = function(order) {
-		book.allocateOrder(order.investor, order.alloc);
-	}
+		$scope.deployingAllocs[order.investor] = "pending";
+		$log.log("Allocating order for " + order.investor + " with value " + order.alloc);
+		book.allocateOrder(order.investor, order.alloc)
+			.then(function(response){
+				var deploymentId = response.data.result.message;
+				$scope.deployingAllocs[order.investor] = deploymentId;
+			});
+	};
+
+	$scope.updateOrder = function(deal) {
+		if(!deal.myOrder)
+			return;
+		$scope.deployingOrders[deal.issuer] = "pending";
+		$log.log("Updated Order for " + deal.issuer + " with value " + deal.myOrder.ioi);
+		var book = BookService.fromDeploymentId(deal.deploymentId);
+		book.addOrder($scope.username, deal.myOrder.ioi)
+			.then(function(response) {
+				var deploymentId = response.data.result.message;
+				$scope.deployingOrders[deal.issuer] = deploymentId;
+			});
+	};
 
 	$scope.getDealConfig = function() {
 		book.getDealConfig()
 			.then(function(response){
 				$scope.dealConfig = angular.fromJson(response.data.result.message);
 			});
-	}
+	};
+
+	$scope.transferPerc = 0.0;
+	$scope.doTransfer = function() {
+		var cancel = $interval(function(){
+			if($scope.transferPerc == 1) {
+				$interval.cancel(cancel);
+				$scope.pendingBookStatusUpdate = "pending"
+				book.updateDealStatus('settled')
+					.then(function(response){
+						var transactionId = response.data.result.message;
+						$scope.pendingBookStatusUpdate = transactionId;
+						$scope.getDealConfig();
+					});
+			} else {
+				var next = $scope.transferPerc + 0.01;
+				$scope.transferPerc = next > 1 ? 1 : next;
+			}
+		}, 10);
+	};
 
 	init();
 	function init() {
@@ -140,6 +186,6 @@ angular.module("blockswap")
 		$scope.getDealConfig();
 		$scope.getOrderbook();
 
-	}
+	};
 
 });

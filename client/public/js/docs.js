@@ -38,7 +38,7 @@ angular.module("blockswap")
 
 })
 
-.controller("DocController", function($scope, KeyStoreService, DocService) {
+.controller("DocController", function($scope, $log, $location, KeyStoreService, DocService) {
 
 	var docRegistry = null;
 
@@ -46,13 +46,22 @@ angular.module("blockswap")
 		.then(function(response){
 			var deploymentId = response.data;
 			docRegistry = DocService.fromDeploymentId(deploymentId);
-			docRegistry.getDocsFor($scope.username)
-				.then(function(response){
-					$scope.myDocs = angular.fromJson(response.data.result.message);
-				});
+			if($scope.role == 'regulator' || $scope.role == 'bank') {
+					docRegistry.getDocsForAllCompanies()
+					.then(function(response){
+						$scope.allDocs = angular.fromJson(response.data.result.message);
+					});
+			} else {
+				docRegistry.getDocsFor($scope.username)
+					.then(function(response){
+						$scope.myDocs = angular.fromJson(response.data.result.message);
+					});
+			}
+
 		});
 
 	$scope.$on("user changed", function(e, data){
+		roleCheck();
 		if(docRegistry) {
 			docRegistry.getDocsFor($scope.username)
 				.then(function(response){
@@ -65,11 +74,12 @@ angular.module("blockswap")
 		docRegistry.declareDoc(doc);
 	};
 
-	$scope.getAllDocs = function() {
-		docRegistry.getDocsForAllCompanies()
-			.then(function(response){
-				$scope.allDocs = angular.fromJson(response.data.result.message);
-			})
-	};
+	roleCheck();
+	function roleCheck() {
+		if($scope.role != 'regulator' && $scope.role != 'bank' && $scope.role != 'investor') {
+			$log.log("Only regulators, banks and investors can use docs");
+			$location.path('/registry');
+		}
+	}
 
 });
