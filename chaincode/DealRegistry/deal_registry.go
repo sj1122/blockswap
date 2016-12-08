@@ -119,7 +119,7 @@ func permissionedForDeal(role string, company string, dealConfig DealConfig) boo
 		return true 
 	} else if role == "regulator" {
 		return true
-	} else if role == "clearing_house" && dealConfig.BookStatus == "confirmed" {
+	} else if role == "clearing_house" && (dealConfig.BookStatus == "confirmed" || dealConfig.BookStatus == "settled")  {
 		return true
 	} else {
 		return false
