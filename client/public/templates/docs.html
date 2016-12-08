@@ -7,18 +7,33 @@
 					ng-disabled="myDocs.indexOf('qib') > -1">
 				Declare QIB
 			</button>
+			<img ng-show="!!deployingDoc['qib']" src="imgs/spinner-26x26.gif">
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div>
 			<button class="btn btn-primary" 
-					ng-click="declareDoc('144a')" 
+					ng-click="declareDoc('5131')" 
 					ng-show="userMap[username].role == 'investor'" 
-					ng-disabled="myDocs.indexOf('144a') > -1">
-				Declare 144A
+					ng-disabled="myDocs.indexOf('5131') > -1">
+				Declare 5131
 			</button>
+			<img ng-show="!!deployingDoc['5131']" src="imgs/spinner-26x26.gif">
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div>
 			<button class="btn btn-primary" 
 					ng-click="declareDoc('regs')" 
 					ng-show="userMap[username].role == 'investor'" 
 					ng-disabled="myDocs.indexOf('regs') > -1">
 				Declare RegS
 			</button>
+			<img ng-show="!!deployingDoc['regs']" src="imgs/spinner-26x26.gif">
 		</div>
 	</div>
 </div>

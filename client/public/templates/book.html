@@ -75,15 +75,14 @@
 				<td ng-show="role == 'clearing_house'">
 					{{ dealConfig.bookStatus == 'settled' ? 
 					   order.alloc : 
-					   (order.alloc | counter: transferPerc:'up' | number: 0) 
-					}}
+					   (order.alloc | counter: transferPerc:'up' | number: 0) }}
 				</td>
 				<td ng-hide="role == 'clearing_house'">{{ order.ioi }}</td>
 				<td>
-					<input style="display: inline; width: 80%"
+					<input style="display: inline; width: 60%"
 						   class="form-control" 
 						   type="number" 
-						   ng-disabled="role != 'bank'" 
+						   ng-disabled="role != 'bank' || dealConfig.bookStatus == 'settled'" 
 						   ng-model="order.alloc" 
 						   ng-blur="allocateOrder(order)">
 					<img ng-show="deployingAllocs[order.investor] != null" src="imgs/spinner-26x26.gif">

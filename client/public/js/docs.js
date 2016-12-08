@@ -42,6 +42,8 @@ angular.module("blockswap")
 
 	var docRegistry = null;
 
+	$scope.deployingDoc = {};
+
 	KeyStoreService.get("DocRegistry")
 		.then(function(response){
 			var deploymentId = response.data;
@@ -70,8 +72,28 @@ angular.module("blockswap")
 		}
 	});
 
+	$scope.$on('blockchain event', function(e, d){
+		if(d.event == "New Doc Registered") {
+			angular.forEach($scope.deployingDoc, function(val, key){
+				if(val == d.id) {
+					$scope.deployingDoc[key] = null;
+				}
+				docRegistry.getDocsFor($scope.username)
+					.then(function(response){
+						$scope.myDocs = angular.fromJson(response.data.result.message);
+					});
+			});
+		}
+	});
+
+
 	$scope.declareDoc = function(doc) {
-		docRegistry.declareDoc(doc);
+		$scope.deployingDoc[doc] = "pending";
+		docRegistry.declareDoc(doc)
+			.then(function(response){
+				var deploymentId = response.data.result.message;
+				$scope.deployingDoc[doc] = deploymentId;
+			});
 	};
 
 	roleCheck();
