@@ -40,28 +40,13 @@
 				<li>
 					<form class="navbar-form">
 						<select class="form-control" 
-								ng-options="username as ((obj.role | desnakeCase) + ': ' + obj.name) for (username , obj) in usermap"
+								ng-options="username as ((obj.role | desnakeCase) + ': ' + obj.name) for (username , obj) in userMap"
 								ng-model="selectedUser" 
 								ng-change="userChanged()">
-							<!-- <option value="snapchat">Issuer: Snapchat</option>
-							<option value="abnb">Issuer: Airbnb</option>
-							<option value="ptir">Issuer: Palantir</option>
-							<option value="uber">Issuer: Uber</option>
-							<option value="bofa">Bank: Bank of America</option>
-							<option value="jpm">Bank: JP Morgan</option>
-							<option value="gs">Bank: Goldman Sachs</option>
-							<option value="brock">Investor: Blackrock</option>
-							<option value="fdlty">Investor: Fidelity</option>
-							<option value="vang">Investor: Vanguard</option>
-							<option value="pimco">Investor: Pimco</option>
-							<option value="amundi">Investor: Amundi</option>
-							<option value="dtc">Clearing House: DTC</option>
-							<option value="sec">Regulator: SEC</option>
-							<option value="finra">Regulator: FINRA</option> -->
+							<option value="">---Select User---</option>
 						</select>
 					</form>
 				</li>
-				<li><a target="_blank" href="https://github.com/habond/blockswap">Code</a></li>
 			</ul>
 		</div>
 	</nav>

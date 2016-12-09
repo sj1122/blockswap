@@ -54,12 +54,14 @@ angular.module("blockswap")
 
 	KeyStoreService.get("DocRegistry")
 		.then(function(response){
-			var deploymentId = response.data;
-			docRegistry = DocService.fromDeploymentId(deploymentId);
-			docRegistry.getDocsFor($scope.username)
-				.then(function(response){
-					$scope.myDocs = angular.fromJson(response.data.result.message);
-				});
+			if(response.data) {
+				var deploymentId = response.data;
+				docRegistry = DocService.fromDeploymentId(deploymentId);
+				docRegistry.getDocsFor($scope.username)
+					.then(function(response){
+						$scope.myDocs = angular.fromJson(response.data.result.message);
+					});				
+			}
 		});
 
 	$scope.$on("user changed", function(e, data){

@@ -110,6 +110,8 @@ angular.module("blockswap")
 
 .controller("MenuController", function($rootScope, $scope, $log, $location, ChaincodeService, KeyStoreService, USER_MAP){
 
+	$rootScope.userMap = USER_MAP;
+
 	KeyStoreService.get("username")
 		.then(function(response){
 			var username = response.data;
@@ -119,10 +121,9 @@ angular.module("blockswap")
 			$rootScope.username = username;
 			$rootScope.role = properties.role;
 			$scope.selectedUser = username;
-			$scope.usermap = USER_MAP;
 		});
 
-	$rootScope.userMap = USER_MAP;
+	
 
 	$scope.userChanged = function() {
 		var username = $scope.selectedUser;
