@@ -3,103 +3,103 @@ angular.module("blockswap")
 .constant("USER_MAP", {
 
 	"snapchat": {
-		"name": "SnapChat Inc.",
+		"name": "FlapChat Inc.",
 		"role": "issuer",
 		"acctNo": 8288,
 		"password": "snappwd"
 	},
 
-	"bofa": {
-		"name": "Bank of America",
-		"role": "bank",
-		"acctNo": 1929,
-		"password": "bamlpwd"
-	},
-
-	"jpm": {
-		"name": "JP Morgan Chase",
-		"role": "bank",
-		"acctNo": 9111,
-		"password": "jppwd"
-	},
-
-	"gs": {
-		"name": "Goldman Sachs",
-		"role": "bank",
-		"acctNo": 1434,
-		"password": "gspwd"
-	},
-
-	"dtc": {
-		"name": "DTC",
-		"role": "clearing_house", 
-		"password": "dtcpwd"
-	},
-
-	"sec": {
-		"name": "SEC",
-		"role": "regulator", 
-		"password": "secpwd"
-	},
-
-	"brock": {
-		"name": "Black Rock",
-		"role": "investor", 
-		"acctNo": 7591,
-		"password": "brpwd"
-	},
-
-	"fdlty": {
-		"name": "Fidelity",
-		"role": "investor",
-		"acctNo": 4431,
-		"password": "ftypwd"
-	},
-
 	"abnb": {
-		"name": "Airbnb",
+		"name": "Whiffbnb",
 		"role": "issuer",
 		"acctNo": 1928,
 		"password": "abpwd"
 	},
 
 	"ptir": {
-		"name": "Palantir",
+		"name": "Palancheer",
 		"role": "issuer", 
 		"acctNo": 6758,
 		"password": "ptripwd"
 	},
 
 	"uber": {
-		"name": "Uber",
+		"name": "Buber",
 		"role": "issuer", 
 		"acctNo": 5588,
 		"password": "uberpwd"
 	},
 
+	"bofa": {
+		"name": "Bank of Murica",
+		"role": "bank",
+		"acctNo": 1929,
+		"password": "bamlpwd"
+	},
+
+	"jpm": {
+		"name": "JP Freeman Chased",
+		"role": "bank",
+		"acctNo": 9111,
+		"password": "jppwd"
+	},
+
+	"gs": {
+		"name": "Silverman Sachs",
+		"role": "bank",
+		"acctNo": 1434,
+		"password": "gspwd"
+	},
+
+	"brock": {
+		"name": "White Pebble",
+		"role": "investor", 
+		"acctNo": 7591,
+		"password": "brpwd"
+	},
+
+	"fdlty": {
+		"name": "Foodelity",
+		"role": "investor",
+		"acctNo": 4431,
+		"password": "ftypwd"
+	},
+
 	"vang": {
-		"name": "Vanguard",
+		"name": "Truckguard",
 		"role": "investor",
 		"acctNo": 1189,
 		"password": "vangpwd"
 	},
 
 	"pimco": {
-		"name": "Pimco",
+		"name": "Pimcool",
 		"role": "investor",
 		"acctNo": 0897, 
 		"password": "pimpwd"
 	},
 
 	"amundi": {
-		"name": "Amundi",
+		"name": "Amoondi",
 		"role": "investor",
 		"acctNo": 0897,
 		"password": "amunpwd"
 	},
 
+	"dtc": {
+		"name": "DeeTeeCee",
+		"role": "clearing_house", 
+		"password": "dtcpwd"
+	},
+
+	"sec": {
+		"name": "URITY",
+		"role": "regulator", 
+		"password": "secpwd"
+	},
+
 	"finra": {
-		"name": "FINRA",
+		"name": "GILLRA",
 		"role": "regulator", 
 		"password": "finpwd"
 	}
@@ -119,6 +119,7 @@ angular.module("blockswap")
 			$rootScope.username = username;
 			$rootScope.role = properties.role;
 			$scope.selectedUser = username;
+			$scope.usermap = USER_MAP;
 		});
 
 	$rootScope.userMap = USER_MAP;

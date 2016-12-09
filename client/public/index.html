@@ -39,8 +39,11 @@
 			<ul class="nav navbar-nav navbar-right">
 				<li>
 					<form class="navbar-form">
-						<select class="form-control" ng-model="selectedUser" ng-change="userChanged()">
-							<option value="snapchat">Issuer: Snapchat</option>
+						<select class="form-control" 
+								ng-options="username as ((obj.role | desnakeCase) + ': ' + obj.name) for (username , obj) in usermap"
+								ng-model="selectedUser" 
+								ng-change="userChanged()">
+							<!-- <option value="snapchat">Issuer: Snapchat</option>
 							<option value="abnb">Issuer: Airbnb</option>
 							<option value="ptir">Issuer: Palantir</option>
 							<option value="uber">Issuer: Uber</option>
@@ -54,7 +57,7 @@
 							<option value="amundi">Investor: Amundi</option>
 							<option value="dtc">Clearing House: DTC</option>
 							<option value="sec">Regulator: SEC</option>
-							<option value="finra">Regulator: FINRA</option>
+							<option value="finra">Regulator: FINRA</option> -->
 						</select>
 					</form>
 				</li>
