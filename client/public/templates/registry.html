@@ -20,9 +20,9 @@
 							<div class="form-group">
 								<label>Banks:</label>
 								<select style="overflow:hidden;" class="form-control" ng-model="banks" multiple>
-									<option value="bofa">Bank of America</option>
-									<option value="jpm">JP Morgan</option>
-									<option value="gs">Goldman Sachs</option>
+									<option value="bofa">{{ 'bofa' | username2company }}</option>
+									<option value="jpm">{{ 'jpm' | username2company }}</option>
+									<option value="gs">{{ 'gs' | username2company }}</option>
 								</select>
 							</div>
 							<div class="form-group">

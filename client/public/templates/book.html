@@ -37,7 +37,7 @@
 								Account Balance: {{
 									dealConfig.bookStatus == 'settled' ? 
 					  				0 : 
-					   				(sumAlloc | counter: transferPerc:'down' | number: 0)
+					   				(sumAlloc * 1000000 | counter: transferPerc:'down' | number: 0)
 								}}
 							</div>
 							<div ng-show="role == 'clearing_house'">
@@ -62,8 +62,8 @@
 					<th>Investor</th>
 					<th ng-show="role == 'regulator' || role == 'clearing_house'">Account No.</th>
 					<th ng-show="role == 'clearing_house'">Account Balance</th>
-					<th ng-hide="role == 'clearing_house'">Amount (shares)</th>
-					<th>Allocation (shares)</th>
+					<th ng-hide="role == 'clearing_house'">Amount (MM shares)</th>
+					<th>Allocation (MM shares)</th>
 					<th ng-hide="role == 'clearing_house'">Confirmed</th>
 				</tr>
 			</thead>
@@ -74,8 +74,8 @@
 				</td>
 				<td ng-show="role == 'clearing_house'">
 					{{ dealConfig.bookStatus == 'settled' ? 
-					   order.alloc : 
-					   (order.alloc | counter: transferPerc:'up' | number: 0) }}
+					   (order.alloc * 1000000 | number: 0) : 
+					   (order.alloc * 1000000 | counter: transferPerc:'up' | number: 0) }}
 				</td>
 				<td ng-hide="role == 'clearing_house'">{{ order.ioi }}</td>
 				<td>
