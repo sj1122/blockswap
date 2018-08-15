@@ -1,6 +1,6 @@
 angular.module("blockswap")
 
-.constant("BOOK_GITHUB_LOCATION", "https://github.com/habond/blockswap/chaincode/Book")
+.constant("BOOK_GITHUB_LOCATION", "https://github.com/sj1122/blockswap/tree/demo/chaincode/Book")
 
 .factory("BookService", function(ChaincodeService, BOOK_GITHUB_LOCATION){
 
