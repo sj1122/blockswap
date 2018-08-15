@@ -1,6 +1,6 @@
 angular.module("blockswap")
 
-.constant("HYPERLEDGER_ENDPOINT_URL", "http://192.168.99.100:7050")
+.constant("HYPERLEDGER_ENDPOINT_URL", "http://35.196.7.144:7050")
 
 .constant("HYPERLEDGER_POLLING_INTERVAL", 5000)
 
