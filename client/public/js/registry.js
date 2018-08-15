@@ -1,6 +1,6 @@
 angular.module("blockswap")
 
-.constant("REGISTRY_GITHUB_LOCATION", "https://github.com/habond/blockswap/chaincode/DealRegistry")
+.constant("REGISTRY_GITHUB_LOCATION", "https://github.com/sj1122/blockswap/tree/demo/chaincode/DealRegistry")
 
 .factory("RegistryService", function(ChaincodeService, REGISTRY_GITHUB_LOCATION){
 
