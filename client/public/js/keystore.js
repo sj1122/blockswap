@@ -5,11 +5,11 @@ angular.module("blockswap")
 	return {
 
 		"get": function(key) {
-			return $http.get("/keystore/" + key);
+			return $http.get("http://localhost:3000/keystore/" + key);
 		},
 
 		"set": function(key, val) {
-			return $http.post("/keystore/" + key + "/" + val);
+			return $http.post("http://localhost:3000/keystore/" + key + "/" + val);
 		}
 
 	};
